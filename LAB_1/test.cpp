@@ -488,11 +488,12 @@ TEST( insert_int, insert_jkbsj )
 	ASSERT_EQ( list, linked_list{});
 
 	constexpr int new_element = 15;
+	constexpr size_t position{};
 
-	list.insert( 0, new_element );
+	list.insert( position, new_element );
 
-	ASSERT_EQ( list.get_size(), 0);
-	ASSERT_THROW( list.at( 0 ), std::out_of_range );
+	ASSERT_EQ( list.get_size(), position );
+	ASSERT_THROW( list.at( position ), std::out_of_range );
 
 }
 
@@ -502,9 +503,10 @@ TEST( insert_int, insert_nksjhj )
 
 	list.push_front( initial_value );
 
-	ASSERT_EQ( list.get_size(), 1 );
+	const size_t starting_size{ list.get_size() };
 
-	const size_t starting_size = list.get_size();
+	ASSERT_EQ( starting_size, 1 );
+
 	constexpr int new_element = 25;
 	constexpr size_t position{};
 	
@@ -534,7 +536,7 @@ TEST( insert_int, insert_nkdn )
 	ASSERT_EQ( list.at( position ), new_element );
 
 }
-TEST( insert, insert_list2_into_list1 )
+TEST( insert, insert_list2_into_list1_with_no_elements )
 {
 	linked_list list1{};
 
@@ -542,7 +544,7 @@ TEST( insert, insert_list2_into_list1 )
 
 	linked_list list2{};
 
-	constexpr size_t start_size_list2 = initial_size;
+	constexpr size_t start_size_list2{ initial_size };
 
 	for ( int i = start_size_list2 - 1; i >= 0; --i )
 	{
@@ -550,12 +552,14 @@ TEST( insert, insert_list2_into_list1 )
 	}
 	ASSERT_EQ( list2.get_size(), start_size_list2 );
 
-	size_t end_size = list2.get_size();
+	size_t end_size{ list2.get_size() };
 
-	list1.insert( 0, list2 );
+	constexpr size_t position{};
+
+	list1.insert( position, list2 );
 
 	ASSERT_EQ( list1.get_size(), end_size );
-	ASSERT_EQ( list1.at( 0 ), 0);
+	ASSERT_EQ( list1.at( position ), position);
 
 }
 
@@ -565,24 +569,34 @@ TEST(insert, kjbsof)
 
 	list1.push_front(initial_value);
 
-	ASSERT_EQ(list1.get_size(), 1);
+	const size_t start_size_list1{ list1.get_size() };
+
+	ASSERT_EQ(start_size_list1, 1);
 
 	linked_list list2{};
 
-	constexpr size_t start_size_list2 = initial_size - 8;
+	constexpr size_t start_size_list2{ initial_size - 8 };
 
 	for (int i = start_size_list2 - 1; i >= 0; --i)
 	{
 		list2.push_front(i);
 	}
-	ASSERT_EQ(list2.get_size(), start_size_list2);
+	ASSERT_EQ( list2.get_size(), start_size_list2 );
 
-	size_t end_size = list1.get_size() + list2.get_size();
-	size_t position = 0;
+	size_t end_size{ start_size_list1 + list2.get_size() };
+	size_t position{};
 
-	list1.insert(position, list2);
+	list1.insert( position, list2 );
 
-	ASSERT_EQ(list1.get_size(), end_size);
-	ASSERT_EQ(list1.at(position), list2.at(0));
+	ASSERT_EQ( list1.get_size(), end_size );
+	ASSERT_EQ( list1.at(position), list2.at(0) );
+	
+	end_size = list1.get_size() + end_size ;
+	position = 13;
+
+	list1.insert(position, list1);
+
+	ASSERT_EQ( list1.get_size(), end_size );
+	ASSERT_EQ( list1.at(6), 6 );
 
 }
