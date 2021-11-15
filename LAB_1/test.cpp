@@ -591,7 +591,7 @@ TEST(insert, kjbsof)
 	ASSERT_EQ( list1.get_size(), end_size );
 	ASSERT_EQ( list1.at(position), list2.at(position) );
 	
-	end_size = list1.get_size() + end_size ;
+	end_size =  2 * end_size ;
 	position = 13;
 
 	list1.insert(position, list1);
