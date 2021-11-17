@@ -202,6 +202,7 @@ TEST( push_back, pushes_in_list_with_1_element )
     const int result = list.at( new_size - 1 );
 
     ASSERT_EQ( result, new_value );
+
 }
 
 TEST( push_back, pushes_in_list_with_20_elements )
