@@ -601,3 +601,95 @@ TEST(insert, kjbsof)
 	ASSERT_EQ( list1.at(6), 6 );
 
 }
+
+TEST(output_operator, qwe)
+{
+	const linked_list list{};
+
+	ASSERT_EQ(list, linked_list{});
+
+	const std::string string{};
+	std::ostringstream ostringstream{};
+
+	ostringstream << list;
+
+	const std::string string_output{ ostringstream.str() };
+
+	ASSERT_EQ(string_output, string);
+}
+
+TEST(output_operator, asd)
+{
+	linked_list list{};
+
+	list.push_front(initial_value);
+
+	ASSERT_EQ(list.get_size(), 1);
+
+	const std::string string{ std::string{ "0.\t" }
+							  .append(std::to_string(initial_value)) };
+	std::ostringstream ostringstream{};
+
+	ostringstream << list;
+
+	const std::string string_output{ ostringstream.str() };
+
+	ASSERT_EQ(string_output, string);
+}
+
+TEST(output_operator, zxc)
+{
+	linked_list list{};
+
+	for (int i = initial_size - 1; i >= 0; --i)
+	{
+		list.push_front(i);
+	}
+	ASSERT_EQ(list.get_size(), initial_size);
+
+	std::string string{};
+
+	for (size_t i{}; i < initial_size; ++i)
+	{
+		string.append(std::to_string(i))
+			.append(".\t")
+			.append(std::to_string(i))
+			.append(i == initial_size - 1 ? "" : "\n");
+	}
+	std::ostringstream ostringstream{};
+
+	ostringstream << list;
+
+	const std::string string_output{ ostringstream.str() };
+
+	ASSERT_EQ(string_output, string);
+
+}
+
+TEST(comparison_operator, kdsnvl)
+{
+	linked_list list1{};
+	linked_list list2{};
+
+	bool result = list1 == list2;
+
+	ASSERT_TRUE(result);
+
+}
+
+TEST(comparison_operator, jlss)
+{
+	linked_list list1{};
+	
+	linked_list list2{};
+
+	for (int i = 3; i >= 0; --i)
+	{
+		list2.push_front(i);
+	}
+
+	bool result = list1 == list2;
+
+	ASSERT_FALSE(result);
+
+}
