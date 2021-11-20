@@ -1,5 +1,49 @@
 #include "algorithms.h"
 
+namespace 
+{
+	bool sorted(const std::vector<int> &vector, const bool &mode)
+	{
+		if (mode)
+		{
+			for (size_t i = 0; i < vector.size(); ++i)
+			{
+				if (vector.at(i) > vector.at(i + 1))
+				{
+					return false;
+				}
+			}
+		}
+		
+		else
+		{
+			for (size_t i = 0; i < vector.size(); ++i)
+			{
+				if (vector.at(i) < vector.at(i + 1))
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	void shuffle(std::vector<int> &vector)
+	{
+		for (size_t i = 0; i < vector.size(); ++i)
+		{
+			const int temp = vector.at(i);
+
+			const int position = rand() % vector.size();
+
+			vector.at(i) = vector.at(position);
+
+			vector.at(position) = temp;
+		}
+	}
+};
+
 bool algorithms::binary_search( const std::vector<int> &vector, const int &key, size_t &position )
 {
 	if (vector.empty())
@@ -35,7 +79,7 @@ bool algorithms::binary_search( const std::vector<int> &vector, const int &key, 
 	return false;
 }
 
-std::vector<char> algorithms::counting_sort(std::vector<char> &vector, const bool &mode)
+std::vector<char> algorithms::counting_sort(const std::vector<char> &vector, const bool &mode)
 {
 	if ( vector.size() < 2 )
 	{
@@ -94,3 +138,16 @@ std::vector<char> algorithms::counting_sort(std::vector<char> &vector, const boo
 
 	return result;
 }
+
+std::vector<int> algorithms::bogo_sort(const std::vector<int> &vector, const bool &mode)
+{
+	std::vector<int> result{ vector };
+
+	while (!sorted(result, mode))
+	{
+		shuffle(result);
+	}
+
+	return result;
+}
+
