@@ -1,5 +1,6 @@
-#include "pch.h"
 #include "linked_list.h"
+#include <iostream>
+#include "gtest/gtest.h"
 
 constexpr size_t initial_size = 20;
 constexpr int initial_value = -17;
@@ -685,11 +686,30 @@ TEST( comparison_operator, false_for_two_not_equal_lists )
 
 	for (int i = 3; i >= 0; --i)
 	{
-		list2.push_front(i);
+		list2.push_front( i );
 	}
 
 	bool result = list1 == list2;
 
-	ASSERT_FALSE(result);
+	ASSERT_FALSE( result );
 
+}
+
+int main()
+{
+	linked_list list{};
+
+	size_t size{ 17 };
+
+	for ( int i = 0; i < size; ++i )
+	{
+		list.push_front( i );
+	}
+	std::cout << list << "\n\n";
+
+	list.pop_front();
+
+	std::cout << list << '\n';
+
+	return 0;
 }
