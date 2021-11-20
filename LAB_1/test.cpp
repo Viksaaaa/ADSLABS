@@ -482,7 +482,7 @@ TEST( remove, removes_from_list_with_20_elements )
     ASSERT_EQ( list.at( position ), position + 1 );
 }
 
-TEST( insert_int, insert_jkbsj )
+TEST( insert_int, inserts_in_empty_list)
 {
 	linked_list list{};
 	
@@ -498,7 +498,7 @@ TEST( insert_int, insert_jkbsj )
 
 }
 
-TEST( insert_int, insert_nksjhj )
+TEST( insert_int, inserts_in_list_with_1_element)
 {
 	linked_list list{};
 
@@ -517,7 +517,7 @@ TEST( insert_int, insert_nksjhj )
 	ASSERT_EQ( list.at(position), new_element );
 
 }
-TEST( insert_int, insert_nkdn )
+TEST( insert_int, nserts_in_list_with_20_elements)
 {
 	linked_list list{};
 
@@ -537,7 +537,7 @@ TEST( insert_int, insert_nkdn )
 	ASSERT_EQ( list.at( position ), new_element );
 
 }
-TEST( insert, insert_list2_into_list1_with_no_elements )
+TEST( insert_list, insert_list2_into_list1_with_no_element )
 {
 	linked_list list1{};
 
@@ -564,8 +564,8 @@ TEST( insert, insert_list2_into_list1_with_no_elements )
 
 }
 
-TEST(insert, kjbsof)
-{
+TEST( insert, insert_list2_into_list1_with_several_elements )
+{ 
 	linked_list list1{};
 
 	list1.push_front(initial_value);
@@ -602,7 +602,7 @@ TEST(insert, kjbsof)
 
 }
 
-TEST(output_operator, qwe)
+TEST( output_operator, empty_string_for_empty_list )
 {
 	const linked_list list{};
 
@@ -618,7 +618,7 @@ TEST(output_operator, qwe)
 	ASSERT_EQ(string_output, string);
 }
 
-TEST(output_operator, asd)
+TEST( output_operator, outputs_list_with_1_element )
 {
 	linked_list list{};
 
@@ -637,7 +637,7 @@ TEST(output_operator, asd)
 	ASSERT_EQ(string_output, string);
 }
 
-TEST(output_operator, zxc)
+TEST( output_operator, outputs_list_with_20_elements)
 {
 	linked_list list{};
 
@@ -666,7 +666,7 @@ TEST(output_operator, zxc)
 
 }
 
-TEST(comparison_operator, kdsnvl)
+TEST( comparison_operator, true_for_two_empty_lists )
 {
 	linked_list list1{};
 	linked_list list2{};
@@ -677,7 +677,7 @@ TEST(comparison_operator, kdsnvl)
 
 }
 
-TEST(comparison_operator, jlss)
+TEST( comparison_operator, false_for_two_not_equal_lists )
 {
 	linked_list list1{};
 	
