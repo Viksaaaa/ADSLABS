@@ -112,14 +112,24 @@ TEST( at, at_19_returns_last_element_for_list_with_20_elements )
     ASSERT_EQ( result, initial_size - 1 );
 }
 
-TEST( set, does_not_modify_empty_list )
+TEST( set, throws_std_out_of_range_for_0_elements)
 {
     linked_list list{};
+	std::string error_result{};
 
-    list.set( 0, 15 );
+	try
+	{
+		list.set(0, 15);
+	}
+	catch (const std::out_of_range &error)
+	{
+		error_result.append(error.what());
+	}
 
-    ASSERT_EQ( list, linked_list{} );
+	ASSERT_STREQ(error_result.c_str(), "Index (0) should be lower than size (0)");
+	ASSERT_THROW(list.set(0, 15), std::out_of_range);
 }
+
 
 TEST( set, modifies_first_element )
 {
@@ -429,20 +439,31 @@ TEST( clear, clears_list_with_20_elements )
     ASSERT_EQ( list, linked_list{} );
 }
 
-TEST( remove, does_nothing_with_empty_list )
+TEST(remove, throws_std_out_of_range_for_0_elements)
 {
     linked_list list{};
+	std::string error_result{};
 
     ASSERT_EQ( list, linked_list{} );
 
-    list.remove( 9034231 );
+	try
+	{
+		list.remove(9034231);
+	}
+	catch (const std::out_of_range &error)
+	{
+		error_result.append(error.what());
+	}
 
-    ASSERT_EQ( list, linked_list{} );
+	ASSERT_STREQ(error_result.c_str(), "Index (9034231) should be lower than size (0)");
+	ASSERT_THROW(list.remove(9034231), std::out_of_range);
 }
+
 
 TEST( remove, removes_from_list_with_1_element )
 {
     linked_list list{};
+	std::string error_result{};
 
     list.push_front( initial_value );
 
@@ -450,8 +471,17 @@ TEST( remove, removes_from_list_with_1_element )
 
     ASSERT_EQ( result, 1 );
 
-    list.remove( 9034231 );
-
+	try
+	{
+		list.remove(9034231);
+	}
+	catch (const std::out_of_range &error)
+	{
+		error_result.append(error.what());
+	}
+    
+	ASSERT_STREQ(error_result.c_str(), "Index (9034231) should be lower than size (1)");
+	ASSERT_THROW(list.remove(9034231), std::out_of_range);
     ASSERT_EQ( list.get_size(), result );
 
     list.remove( 0 );
@@ -459,9 +489,11 @@ TEST( remove, removes_from_list_with_1_element )
     ASSERT_EQ( list, linked_list{} );
 }
 
+
 TEST( remove, removes_from_list_with_20_elements )
 {
     linked_list list{};
+	std::string error_result{};
 
     for ( int i = initial_size - 1; i >= 0; --i )
     {
@@ -469,8 +501,17 @@ TEST( remove, removes_from_list_with_20_elements )
     }
     ASSERT_EQ( list.get_size(), initial_size );
 
-    list.remove( initial_size );
+	try
+	{
+		list.remove(initial_size);
+	}
+	catch (const std::out_of_range &error)
+	{
+		error_result.append(error.what());
+	}
 
+	ASSERT_STREQ(error_result.c_str(), "Index (20) should be lower than size (20)");
+	ASSERT_THROW(list.remove(initial_size), std::out_of_range);
     ASSERT_EQ( list.get_size(), initial_size );
 
     constexpr size_t position{ 10 };
@@ -483,17 +524,27 @@ TEST( remove, removes_from_list_with_20_elements )
     ASSERT_EQ( list.at( position ), position + 1 );
 }
 
-TEST( insert_int, inserts_in_empty_list)
+TEST( insert_int, does_not_insert_in_wrong_position)
 {
 	linked_list list{};
+	std::string error_result{};
 	
 	ASSERT_EQ( list, linked_list{});
 
 	constexpr int new_element = 15;
 	constexpr size_t position{};
 
-	list.insert( position, new_element );
-
+	try
+	{
+		list.insert(position, new_element);
+	}
+	catch (const std::out_of_range &error)
+	{
+		error_result.append(error.what());
+	}
+	
+	ASSERT_STREQ(error_result.c_str(), "Index (0) should be lower than size (0)");
+	ASSERT_THROW(list.insert(position, new_element), std::out_of_range);
 	ASSERT_EQ( list.get_size(), position );
 	ASSERT_THROW( list.at( position ), std::out_of_range );
 
@@ -601,6 +652,19 @@ TEST( insert, insert_list2_into_list1_with_several_elements )
 	ASSERT_EQ( list1.get_size(), end_size );
 	ASSERT_EQ( list1.at(6), 6 );
 
+	std::string error_result{};
+
+	try
+	{
+		list1.insert(7832, list2);
+	}
+	catch (const std::out_of_range &error)
+	{
+		error_result.append(error.what());
+	}
+
+	ASSERT_STREQ(error_result.c_str(), "Index (7832) should be lower than or equal to size (26)");
+	ASSERT_THROW(list1.insert(7832, list2), std::out_of_range);
 }
 
 TEST( output_operator, empty_string_for_empty_list )
@@ -694,6 +758,7 @@ TEST( comparison_operator, false_for_two_not_equal_lists )
 	ASSERT_FALSE( result );
 
 }
+
 
 int main()
 {

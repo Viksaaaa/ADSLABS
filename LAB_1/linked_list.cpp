@@ -111,6 +111,18 @@ void linked_list::insert( const size_t &position, const int &data )
         current->next = new node{ data, current->next };
         ++size_;
     }
+
+	else
+	{
+		throw std::out_of_range
+		(
+			std::string{ "Index (" }
+			.append(std::to_string(position))
+			.append(") should be lower than size (")
+			.append(std::to_string(size_))
+			.append(")")
+		);
+	}
 }
 
 void linked_list::insert( const size_t &position, const linked_list &list )
@@ -158,6 +170,18 @@ void linked_list::insert( const size_t &position, const linked_list &list )
         }
         size_ += list.size_;
     }
+
+	else if (position > size_)
+	{
+		throw std::out_of_range
+		(
+			std::string{ "Index (" }
+			.append(std::to_string(position))
+			.append(") should be lower than or equal to size (")
+			.append(std::to_string(size_))
+			.append(")")
+		);
+	}
 }
 
 void linked_list::set( const size_t &position, const int &data ) const
@@ -184,6 +208,18 @@ void linked_list::set( const size_t &position, const int &data ) const
         }
         current->data = data;
     }
+
+	else
+	{
+		throw std::out_of_range
+		(
+			std::string{ "Index (" }
+			.append(std::to_string(position))
+			.append(") should be lower than size (")
+			.append(std::to_string(size_))
+			.append(")")
+		);
+	}
 }
 
 void linked_list::pop_front()
@@ -264,6 +300,18 @@ void linked_list::remove( const size_t &position )
 
         delete to_be_deleted;
     }
+
+	else 
+	{
+		throw std::out_of_range
+		(
+			std::string{ "Index (" }
+			.append(std::to_string(position))
+			.append(") should be lower than size (")
+			.append(std::to_string(size_))
+			.append(")")
+		);
+	}
 }
 
 void linked_list::clear()
