@@ -139,15 +139,42 @@ std::vector<char> algorithms::counting_sort(const std::vector<char> &vector, con
 	return result;
 }
 
-std::vector<int> algorithms::bogo_sort(const std::vector<int> &vector, const bool &mode)
+void algorithms::bogo_sort(std::vector<int> &vector, const bool &mode)
 {
-	std::vector<int> result{ vector };
 
-	while (!sorted(result, mode))
+	while (!sorted(vector, mode))
 	{
-		shuffle(result);
+		shuffle(vector);
 	}
 
-	return result;
+}
+
+void algorithms::insertion_sort(std::vector<int> &vector, const bool &mode)
+{
+	int temp{};
+
+	for (size_t i = 1; i < vector.size(); ++i)
+	{
+		temp = vector.at(i);
+
+		size_t j = i - 1;
+
+		for (; j > 0 && vector.at(j) > temp; --j)
+		{
+			vector.at(j + 1) = vector.at(j);
+		}
+
+		if (vector.at(0) > temp)
+		{
+			vector.at(1) = vector.at(0);
+			vector.at(0) = temp;
+		}
+		
+		else
+		{
+			vector.at(j + 1) = temp;
+		}
+
+	}
 }
 

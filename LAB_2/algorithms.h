@@ -8,7 +8,9 @@ namespace algorithms
 
 	std::vector<char> counting_sort(const std::vector<char> &, const bool &mode = true);
 
-	std::vector<int> bogo_sort(const std::vector<int> &, const bool &mode = true);
+	void bogo_sort(std::vector<int> &, const bool &mode = true);
+
+	void insertion_sort(std::vector<int> &, const bool &mode = true);
 
 };
 
