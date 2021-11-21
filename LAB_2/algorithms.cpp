@@ -6,7 +6,7 @@ namespace
 	{
 		if (mode)
 		{
-			for (size_t i = 0; i < vector.size(); ++i)
+			for (size_t i = 0; i < vector.size() - 1; ++i)
 			{
 				if (vector.at(i) > vector.at(i + 1))
 				{
@@ -17,7 +17,7 @@ namespace
 		
 		else
 		{
-			for (size_t i = 0; i < vector.size(); ++i)
+			for (size_t i = 0; i < vector.size() - 1; ++i)
 			{
 				if (vector.at(i) < vector.at(i + 1))
 				{
@@ -79,11 +79,11 @@ bool algorithms::binary_search( const std::vector<int> &vector, const int &key, 
 	return false;
 }
 
-std::vector<char> algorithms::counting_sort(const std::vector<char> &vector, const bool &mode)
+void algorithms::counting_sort(std::vector<char> &vector, const bool &mode)
 {
 	if ( vector.size() < 2 )
 	{
-		return std::vector<char>{vector};
+		return;
 	}
 	
 	char min = vector.at(0);
@@ -136,7 +136,7 @@ std::vector<char> algorithms::counting_sort(const std::vector<char> &vector, con
 
 	result.at(--counter.at(vector.at(0) - min)) = vector.at(0);
 
-	return result;
+	vector = std::move(result);
 }
 
 void algorithms::bogo_sort(std::vector<int> &vector, const bool &mode)
@@ -176,5 +176,10 @@ void algorithms::insertion_sort(std::vector<int> &vector, const bool &mode)
 		}
 
 	}
+}
+
+void algorithms::quick_sort(std::vector<int> &, const bool & mode)
+{
+
 }
 
