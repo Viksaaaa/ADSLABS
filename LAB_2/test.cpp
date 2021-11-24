@@ -149,31 +149,31 @@ int main()
 			generate(test_subject.begin(), test_subject.end(), rand);
 
 			initial_sequence = test_subject;
-			auto begin = std::chrono::steady_clock::now();
+			auto begin{ std::chrono::steady_clock::now() };
 			algorithms::insertion_sort(initial_sequence, sort_order::ascending);
-			auto end = std::chrono::steady_clock::now();
-			assert(true == std::is_sorted(initial_sequence.begin(),initial_sequence.end()));
+			auto end{ std::chrono::steady_clock::now() };
+			assert(std::is_sorted(initial_sequence.begin(),initial_sequence.end()));
 			time_avg_insertion_asc.at(i) += std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() / initial_size;
 
 			initial_sequence = test_subject;
 			begin = std::chrono::steady_clock::now();
 			algorithms::insertion_sort(initial_sequence, sort_order::descending);
 			end = std::chrono::steady_clock::now();
-			assert(true == std::is_sorted(initial_sequence.begin(), initial_sequence.end(), std::greater<>()));
+			assert(std::is_sorted(initial_sequence.begin(), initial_sequence.end(), std::greater<>()));
 			time_avg_insertion_des.at(i) += std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() / initial_size;
 
 			initial_sequence = test_subject;
 			begin = std::chrono::steady_clock::now();
 			algorithms::quick_sort(initial_sequence, sort_order::ascending);
 			end = std::chrono::steady_clock::now();
-			assert(true == std::is_sorted(initial_sequence.begin(), initial_sequence.end()));
+			assert(std::is_sorted(initial_sequence.begin(), initial_sequence.end()));
 			time_avg_quick_asc.at(i) += std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() / initial_size;
 
 			initial_sequence = test_subject;
 			begin = std::chrono::steady_clock::now();
 			algorithms::quick_sort(initial_sequence, sort_order::descending);
 			end = std::chrono::steady_clock::now();
-			assert(true == std::is_sorted(initial_sequence.begin(), initial_sequence.end(), std::greater<>()));
+			assert(std::is_sorted(initial_sequence.begin(), initial_sequence.end(), std::greater<>()));
 			time_avg_quick_des.at(i) += std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() / initial_size;
 		}
 		std::cout << "VECTOR SIZE:\t\t"
