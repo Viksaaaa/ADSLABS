@@ -2,9 +2,9 @@
 
 namespace 
 {
-	bool sorted(const std::vector<int> &vector, const bool &mode)
+	bool sorted(const std::vector<int> &vector, const sort_order &order)
 	{
-		if (mode)
+		if (order == sort_order::ascending)
 		{
 			for (size_t i = 0; i < vector.size() - 1; ++i)
 			{
@@ -42,7 +42,56 @@ namespace
 			vector.at(position) = temp;
 		}
 	}
+
+	size_t partition(std::vector<int> &vector, const size_t &left, const size_t &right, const sort_order &order)
+	{
+		size_t i = right;
+
+		if (order == sort_order::ascending)
+		{
+			for (size_t j = right; j >= left + 1; --j)
+			{
+				if (vector.at(j) > vector.at(left))
+				{
+					const int temp = vector.at(j);
+					vector.at(j) = vector.at(i);
+					vector.at(i--) = temp;
+				}
+			}
+		}
+		else
+		{
+			for (size_t j = right; j >= left + 1; --j)
+			{
+				if (vector.at(j) < vector.at(left))
+				{
+					const int temp = vector.at(j);
+					vector.at(j) = vector.at(i);
+					vector.at(i--) = temp;
+				}
+			}
+		}
+		const int temp = vector.at(i);
+		vector.at(i) = vector.at(left);
+		vector.at(left) = temp;
+
+		return i;
+	}
+
+	void recursive_quick_sort(std::vector<int> &vector, const size_t &left, const size_t &right, const sort_order &order)
+	{
+		if (left < right)
+		{
+			const size_t pivot = partition(vector, left, right, order);
+
+			recursive_quick_sort(vector, left, pivot - (pivot != left), order);
+			recursive_quick_sort(vector, pivot + (pivot != right), right, order);
+		}
+	}
+
+	
 };
+
 
 bool algorithms::binary_search( const std::vector<int> &vector, const int &key, size_t &position )
 {
@@ -79,7 +128,7 @@ bool algorithms::binary_search( const std::vector<int> &vector, const int &key, 
 	return false;
 }
 
-void algorithms::counting_sort(std::vector<char> &vector, const bool &mode)
+void algorithms::counting_sort(std::vector<char> &vector, const sort_order &order)
 {
 	if ( vector.size() < 2 )
 	{
@@ -104,12 +153,12 @@ void algorithms::counting_sort(std::vector<char> &vector, const bool &mode)
 
 	std::vector<size_t> counter(1 + max - min);
 
-	for(size_t i = 0; i < vector.size(); ++i)
+	for(const auto &element : vector)
 	{
-		++counter.at(vector.at(i) - min);
+		++counter.at(element - min);
 	}
 
-	if (mode)
+	if (order == sort_order::ascending)
 	{
 		for(size_t i = 1; i < counter.size(); ++i)
 		{
@@ -119,67 +168,68 @@ void algorithms::counting_sort(std::vector<char> &vector, const bool &mode)
 
 	else
 	{
-		for (size_t i = counter.size() - 2; i > 0; --i)
+		for (size_t i = counter.size() - 1; i-- > 0; )
 		{
 			counter.at(i) += counter.at(i + 1);
 		}
-
-		counter.at(0) += counter.at(1);
 	}
 	
 	std::vector<char> result(vector.size());
 
-	for (size_t i = vector.size() - 1; i > 0; --i) 
+	for (size_t i = vector.size(); i-- > 0; ) 
 	{
 		result.at(--counter.at(vector.at(i) - min)) = vector.at(i);
 	}
 
-	result.at(--counter.at(vector.at(0) - min)) = vector.at(0);
-
 	vector = std::move(result);
 }
 
-void algorithms::bogo_sort(std::vector<int> &vector, const bool &mode)
+void algorithms::bogo_sort(std::vector<int> &vector, const sort_order &order)
 {
-
-	while (!sorted(vector, mode))
+	while (!sorted(vector, order))
 	{
 		shuffle(vector);
 	}
-
 }
 
-void algorithms::insertion_sort(std::vector<int> &vector, const bool &mode)
+void algorithms::insertion_sort(std::vector<int> &vector, const sort_order &order)
 {
 	int temp{};
 
-	for (size_t i = 1; i < vector.size(); ++i)
+	if (order == sort_order::ascending)
 	{
-		temp = vector.at(i);
-
-		size_t j = i - 1;
-
-		for (; j > 0 && vector.at(j) > temp; --j)
+		for (size_t i = 1; i < vector.size(); ++i)
 		{
-			vector.at(j + 1) = vector.at(j);
-		}
+			temp = vector.at(i);
 
-		if (vector.at(0) > temp)
-		{
-			vector.at(1) = vector.at(0);
-			vector.at(0) = temp;
-		}
-		
-		else
-		{
-			vector.at(j + 1) = temp;
-		}
+			size_t j = i;
 
+			for (; j-- > 0 && vector.at(j) > temp; )
+			{
+				vector.at(j + 1) = vector.at(j);
+			}
+			vector.at(j + static_cast<bool>(j)) = temp;
+		}
+	}
+	else
+	{
+		for (size_t i = 1; i < vector.size(); ++i)
+		{
+			temp = vector.at(i);
+
+			size_t j = i;
+
+			for (; j-- > 0 && vector.at(j) < temp; )
+			{
+				vector.at(j + 1) = vector.at(j);
+			}
+			vector.at(j + static_cast<bool>(j)) = temp;
+		}
 	}
 }
 
-void algorithms::quick_sort(std::vector<int> &, const bool & mode)
+void algorithms::quick_sort(std::vector<int> &vector, const sort_order &order)
 {
-
+	recursive_quick_sort(vector, 0, vector.size() - 1, order);
 }
 
