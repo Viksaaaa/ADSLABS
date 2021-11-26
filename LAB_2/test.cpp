@@ -126,7 +126,7 @@ TEST(quick_sort, works)
 		step *= initial_size;
 	}
 }
-
+/*
 int main()
 {
 	srand(time(nullptr));
@@ -192,4 +192,4 @@ int main()
 		step *= initial_size;
 	}
 	return 0;
-}
+}*/
