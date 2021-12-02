@@ -1,20 +1,6 @@
 #ifndef BINARY_SEARCH_TREE_H
 #define BINARY_SEARCH_TREE_H
 
-#include <iterator>
-
-enum class iterator_type
-{
-	in_order,
-	breadth_first
-};
-
-enum class position
-{
-	begin,
-	end
-};
-
 class binary_search_tree
 {
 	struct node
@@ -26,43 +12,58 @@ class binary_search_tree
 		explicit node(const int &, node *left = nullptr, node *right = nullptr);
 	};
 
-	class iterator
-		: public std::iterator<std::bidirectional_iterator_tag, int>
+	class deque
 	{
-		class deque
+		struct element
 		{
-			struct element
-			{
-				const node *data;
-				element *next;
-				element *previous;
+			const node *data;
+			element *next;
+			element *previous;
 
-				explicit element(const node *, element *next = nullptr, element *previous = nullptr);
-			};
-
-			size_t size_;
-			element *front_;
-			element *back_;
-
-		public:
-			deque();
-			~deque();
-
-			bool operator==(const deque &) const;
-
-			void push_front(const node *);
-			void push_back(const node *);
-			void pop_front();
-			void pop_back();
-
-			const element *front() const;
-			const element *back() const;
+			explicit element(const node *, element *next = nullptr, element *previous = nullptr);
 		};
 
+		size_t size_;
+		element *front_;
+		element *back_;
+
+	public:
+		deque();
+		~deque();
+
+		deque &operator=(const deque &);
+
+		bool operator==(const deque &) const;
+
+		void push_front(const node *);
+		void push_back(const node *);
+		void pop_front();
+		void pop_back();
+
+		const element *front() const;
+		const element *back() const;
+		size_t size() const;
+	};
+
+	enum class iterator_type
+	{
+		in_order,
+		breadth_first
+	};
+
+	enum class position
+	{
+		begin,
+		end
+	};
+
+	class iterator
+	{
+		const iterator_type iterator_type_;
+		size_t index_;
+		const binary_search_tree *tree_;
 		deque *main_;
 		deque *additional_;
-		const binary_search_tree *tree_;
-		const iterator_type iterator_type_;
 
 	public:
 		iterator();
@@ -79,12 +80,20 @@ class binary_search_tree
 		iterator operator++(int);
 		iterator &operator--();
 		iterator operator--(int);
+
+		iterator operator+(const size_t &);
+		iterator operator-(const size_t &);
 	};
 
+	iterator_type iterator_type_;
+	size_t size_;
 	node *root_;
 
-	static void insert(node *&, const int &);
-	static void remove(node *&, const int &);
+	friend bool operator==(const binary_search_tree &, const binary_search_tree &);
+	friend bool operator!=(const binary_search_tree &, const binary_search_tree &);
+
+	void insert(node *&, const int &);
+	void remove(node *&, const int &);
 	static void destroy_tree(node *&);
 
 	static bool contains(node *, const int &);
@@ -100,10 +109,9 @@ public:
 
 	bool contains(const int &) const;
 
-	iterator lnr_begin() const;
-	iterator bf_begin() const;
-	iterator lnr_end() const;
-	iterator bf_end() const;
+	void toggle_iterator_type();
+	iterator begin() const;
+	iterator end() const;
 };
 
 #endif
