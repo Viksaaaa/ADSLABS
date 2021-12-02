@@ -162,11 +162,11 @@ binary_search_tree::iterator::iterator
 	, main_{ new deque{} }
 	, additional_{ iterator_type == iterator_type::breadth_first ? new deque{} : nullptr }
 {
-	if (position == position::begin)
+	if (position == position::begin && tree_->root_)
 	{
 		main_->push_front(tree_->root_);
 
-		if (iterator_type == iterator_type::in_order && tree->root_)
+		if (iterator_type == iterator_type::in_order)
 		{
 			while (main_->front()->data->left)
 			{
