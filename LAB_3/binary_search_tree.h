@@ -33,8 +33,6 @@ class binary_search_tree
 
 		deque &operator=(const deque &);
 
-		bool operator==(const deque &) const;
-
 		void push_front(const node *);
 		void push_back(const node *);
 		void pop_front();
@@ -44,17 +42,11 @@ class binary_search_tree
 		const element *back() const;
 		size_t size() const;
 	};
-
+	
 	enum class iterator_type
 	{
 		in_order,
 		breadth_first
-	};
-
-	enum class position
-	{
-		begin,
-		end
 	};
 
 	class iterator
@@ -63,34 +55,19 @@ class binary_search_tree
 		size_t index_;
 		const binary_search_tree *tree_;
 		deque *main_;
-		deque *additional_;
 
 	public:
 		iterator();
-		iterator(const binary_search_tree *, const iterator_type &, const position &);
+		iterator(const binary_search_tree *, const iterator_type &);
 		iterator(const iterator &);
 		~iterator();
 
-		bool operator==(const iterator &) const;
-		bool operator!=(const iterator &) const;
-
-		const int &operator*() const;
-
-		iterator &operator++();
-		iterator operator++(int);
-		iterator &operator--();
-		iterator operator--(int);
-
-		iterator operator+(const size_t &);
-		iterator operator-(const size_t &);
+		bool has_next() const;
+		int next();
 	};
-
-	iterator_type iterator_type_;
+	
 	size_t size_;
 	node *root_;
-
-	friend bool operator==(const binary_search_tree &, const binary_search_tree &);
-	friend bool operator!=(const binary_search_tree &, const binary_search_tree &);
 
 	void insert(node *&, const int &);
 	void remove(node *&, const int &);
@@ -109,9 +86,8 @@ public:
 
 	bool contains(const int &) const;
 
-	void toggle_iterator_type();
-	iterator begin() const;
-	iterator end() const;
+	iterator create_dft_iterator() const;
+	iterator create_bft_iterator() const;
 };
 
 #endif
