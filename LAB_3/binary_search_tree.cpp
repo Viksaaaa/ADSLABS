@@ -6,10 +6,10 @@
  */
 
 binary_search_tree::deque::element::element(const node* data, element* next, element* previous)
-	: data{ data }, next{ next }, previous{ previous } {}
+: data{data}, next{next}, previous{previous} {}
 
 binary_search_tree::deque::deque()
-	: size_{}, front_{}, back_{} {}
+: size_{}, front_{}, back_{} {}
 
 binary_search_tree::deque::~deque()
 {
@@ -29,39 +29,18 @@ binary_search_tree::deque &binary_search_tree::deque::operator=(const deque &oth
 
 	for (size_t i{}; i < other.size(); ++i)
 	{
-		push_front(current->data);
+		push_front( current->data );
 
 		current = current->next;
 	}
 	return *this;
 }
 
-bool binary_search_tree::deque::operator==(const deque &other) const
-{
-	if (size_ != other.size_)
-	{
-		return false;
-	}
-	const element *current1{ back_ };
-	const element *current2{ other.back_ };
-
-	for (size_t i{}; i < size_; ++i)
-	{
-		if (current1->data != current2->data)
-		{
-			return false;
-		}
-		current1 = current1->next;
-		current2 = current2->next;
-	}
-	return true;
-}
-
-void binary_search_tree::deque::push_front(const node *data)
+void binary_search_tree::deque::push_front( const node *data )
 {
 	++size_;
 
-	if (!front_)
+	if(!front_)
 	{
 		back_ = front_ = new element{ data };
 	}
@@ -71,11 +50,11 @@ void binary_search_tree::deque::push_front(const node *data)
 	}
 }
 
-void binary_search_tree::deque::push_back(const node *data)
+void binary_search_tree::deque::push_back( const node *data )
 {
 	if (!back_)
 	{
-		push_front(data);
+		push_front( data );
 	}
 	else
 	{
@@ -147,26 +126,25 @@ size_t binary_search_tree::deque::size() const
  * DEQUE END
  */
 
- /*
-  * ITERATOR BEGIN
-  */
+/*
+ * ITERATOR BEGIN
+ */
 
 binary_search_tree::iterator::iterator()
-	: iterator_type_{}, index_{}, tree_{}, main_{}, additional_{} {}
+: iterator_type_{}, index_{}, tree_{}, main_{} {}
 
 binary_search_tree::iterator::iterator
-(const binary_search_tree *tree, const iterator_type &iterator_type, const position &position)
-	: iterator_type_{ iterator_type }
-	, index_{ position == position::begin ? 0 : tree->size_ }
-	, tree_{ tree }
-	, main_{ new deque{} }
-	, additional_{ iterator_type == iterator_type::breadth_first ? new deque{} : nullptr }
+(const binary_search_tree *tree, const iterator_type &iterator_type)
+: iterator_type_{ iterator_type }
+, index_{}
+, tree_{ tree }
+, main_{ new deque{} }
 {
-	if (position == position::begin && tree_->root_)
+	if (tree_->root_)
 	{
 		main_->push_front(tree_->root_);
 
-		if (iterator_type == iterator_type::in_order)
+		if ( iterator_type == iterator_type::in_order)
 		{
 			while (main_->front()->data->left)
 			{
@@ -177,82 +155,41 @@ binary_search_tree::iterator::iterator
 }
 
 binary_search_tree::iterator::iterator(const iterator &other)
-	: iterator_type_{ other.iterator_type_ }
-	, index_{ other.index_ }
-	, tree_{ other.tree_ }
-	, main_{ new deque{} }
-	, additional_{ iterator_type_ == iterator_type::breadth_first ? new deque{} : nullptr }
+: iterator_type_{ other.iterator_type_ }
+, index_{ other.index_ }
+, tree_{ other.tree_ }
+, main_{ new deque{} }
 {
 	*main_ = *other.main_;
-
-	if (iterator_type_ == iterator_type::breadth_first)
-	{
-		*additional_ = *other.additional_;
-	}
 }
 
 binary_search_tree::iterator::~iterator()
 {
 	delete main_;
-
-	if (iterator_type_ == iterator_type::breadth_first)
-	{
-		delete additional_;
-	}
 }
 
-bool binary_search_tree::iterator::operator==(const iterator &other) const
+bool binary_search_tree::iterator::has_next() const
 {
-	if (iterator_type_ != other.iterator_type_)
-	{
-		throw std::logic_error("binary_search_tree iterator operator==: can't compare iterators of different types\n");
-	}
-	if (*tree_ != *other.tree_)
-	{
-		throw std::logic_error("binary_search_tree iterator operator==: can't compare iterators of different trees\n");
-	}
-	return *main_ == *other.main_;
+	return index_ != tree_->size_;
 }
 
-bool binary_search_tree::iterator::operator!=(const iterator &other) const
+int binary_search_tree::iterator::next()
 {
-	bool result = false;
+	if (index_ == tree_->size_)
+	{
+		throw std::logic_error( "asd" );
+	}
+	const int element = main_->front()->data->data;
 
-	try
-	{
-		result = !operator==(other);
-	}
-	catch (std::logic_error &error)
-	{
-		throw std::out_of_range(std::string{ "binary_search_tree iterator operator!=: catch error from:\n" }.append(error.what()));
-	}
-	return result;
-}
-
-const int &binary_search_tree::iterator::operator*() const
-{
-	if (!main_->front())
-	{
-		throw std::out_of_range("binary_search_tree iterator operator*: node does not exist\n");
-	}
-	return main_->front()->data->data;
-}
-
-binary_search_tree::iterator &binary_search_tree::iterator::operator++()
-{
-	if (!main_->front())
-	{
-		throw std::out_of_range("binary_search_tree iterator operator++: node does not exist\n");
-	}
 	if (iterator_type_ == iterator_type::in_order)
 	{
 		if (main_->front()->data->right)
 		{
 			main_->push_front(main_->front()->data->right);
 
-			while (main_->front()->data->left)
+			while( main_->front()->data->left )
 			{
-				main_->push_front(main_->front()->data->left);
+				main_->push_front( main_->front()->data->left );
 			}
 		}
 		else
@@ -261,7 +198,7 @@ binary_search_tree::iterator &binary_search_tree::iterator::operator++()
 
 			main_->pop_front();
 
-			while (main_->front() && main_->front()->data->right == current)
+			while( main_->front() && main_->front()->data->right == current)
 			{
 				current = main_->front()->data;
 
@@ -275,241 +212,37 @@ binary_search_tree::iterator &binary_search_tree::iterator::operator++()
 
 		main_->pop_front();
 
-		if (parent->left)
+		if ( parent->left )
 		{
-			main_->push_back(parent->left);
+			main_->push_back( parent->left );
 		}
-		if (parent->right)
+		if ( parent->right )
 		{
-			main_->push_back(parent->right);
+			main_->push_back( parent->right );
 		}
-		additional_->push_back(parent);
 	}
 	++index_;
 
-	return *this;
-}
-
-binary_search_tree::iterator binary_search_tree::iterator::operator++(int)
-{
-	auto current{ *this };
-
-	operator++();
-
-	return current;
-}
-
-binary_search_tree::iterator &binary_search_tree::iterator::operator--()
-{
-	if (iterator_type_ == iterator_type::in_order)
-	{
-		if (main_->front() && main_->front()->data == find_minimum(tree_->root_))
-		{
-			throw std::out_of_range("binary_search_tree iterator operator--: node does not exist\n");
-		}
-		if (!main_->front())
-		{
-			if (!tree_->root_)
-			{
-				throw std::out_of_range("binary_search_tree iterator operator--: tree is empty\n");
-			}
-			main_->push_front(tree_->root_);
-
-			while (main_->front()->data->right)
-			{
-				main_->push_front(main_->front()->data->right);
-			}
-		}
-		else if (main_->front()->data->left)
-		{
-			main_->push_front(main_->front()->data->left);
-
-			while (main_->front()->data->right)
-			{
-				main_->push_front(main_->front()->data->right);
-			}
-		}
-		else
-		{
-			const node *current{ main_->front()->data };
-
-			main_->pop_front();
-
-			while (main_->front() && main_->front()->data->left == current)
-			{
-				current = main_->front()->data;
-
-				main_->pop_front();
-			}
-		}
-	}
-	else
-	{
-		if (main_->front() && main_->front()->data == tree_->root_)
-		{
-			throw std::out_of_range("binary_search_tree iterator operator--: node does not exist\n");
-		}
-		if (!main_->front() && !additional_->front())
-		{
-			if (!tree_->root_)
-			{
-				throw std::out_of_range("binary_search_tree iterator operator--: tree is empty\n");
-			}
-			main_->push_front(tree_->root_);
-
-			while (main_->front())
-			{
-				operator++();
-			}
-			main_->push_back(additional_->back()->data);
-			additional_->pop_back();
-		}
-		else if (!main_->front() && additional_->front())
-		{
-			main_->push_back(additional_->back()->data);
-			additional_->pop_back();
-		}
-		else
-		{
-			const node *parent{ additional_->back()->data };
-
-			additional_->pop_back();
-
-			if (parent->left || parent->right)
-			{
-				main_->pop_back();
-
-				if (parent->left && parent->right)
-				{
-					main_->pop_back();
-				}
-			}
-			main_->push_front(parent);
-		}
-	}
-	--index_;
-
-	return *this;
-}
-
-binary_search_tree::iterator binary_search_tree::iterator::operator--(int)
-{
-	auto current{ *this };
-
-	operator--();
-
-	return current;
-}
-
-binary_search_tree::iterator binary_search_tree::iterator::operator+(const size_t &steps)
-{
-	if (index_ + steps > tree_->size_)
-	{
-		throw std::out_of_range("binary_search_tree iterator operator+: node does not exist\n");
-	}
-	for (size_t i{}; i < steps; ++i)
-	{
-		try
-		{
-			operator++();
-		}
-		catch (std::out_of_range &error)
-		{
-			throw std::out_of_range(std::string{ "binary_search_tree iterator operator+: catch error from:\n" }.append(error.what()));
-		}
-	}
-	return *this;
-}
-
-binary_search_tree::iterator binary_search_tree::iterator::operator-(const size_t &steps)
-{
-	if (index_ < steps)
-	{
-		throw std::out_of_range("binary_search_tree iterator operator-: node does not exist\n");
-	}
-	for (size_t i{}; i < steps; ++i)
-	{
-		try
-		{
-			operator--();
-		}
-		catch (std::out_of_range &error)
-		{
-			throw std::out_of_range(std::string{ "binary_search_tree iterator operator-: catch error from:\n" }.append(error.what()));
-		}
-	}
-	return *this;
+	return element;
 }
 
 /*
  * ITERATOR END
  */
 
- /*
-  * TREE BEGIN
-  */
+/*
+ * TREE BEGIN
+ */
 
 binary_search_tree::node::node(const int &data, node *left, node *right)
-	: data{ data }, left{ left }, right{ right } {}
-
-bool operator==(const binary_search_tree &tree1, const binary_search_tree &tree2)
-{
-#ifndef NDEBUG
-	return tree1.root_ == tree2.root_ && tree1.size_ == tree2.size_;
-#else
-	if (tree1.root_ != tree2.root_ || tree1.size_ != tree2.size_)
-	{
-		return false;
-	}
-	binary_search_tree::deque deque1{};
-	binary_search_tree::deque deque2{};
-	const binary_search_tree::node *current1{ tree1.root_ };
-	const binary_search_tree::node *current2{ tree2.root_ };
-
-	deque1.push_back(current1);
-	deque2.push_back(current2);
-
-	for (size_t i{}; i < tree1.size_; ++i)
-	{
-		if (
-			deque1.front()->data->left != deque2.front()->data->left
-			|| deque1.front()->data->left
-			&& deque1.front()->data->left->data != deque2.front()->data->left->data
-			|| deque1.front()->data->right != deque2.front()->data->right
-			|| deque1.front()->data->right
-			&& deque1.front()->data->right->data != deque2.front()->data->right->data
-			)
-		{
-			return false;
-		}
-		if (deque1.front()->data->left)
-		{
-			deque1.push_back(deque1.front()->data->left);
-			deque2.push_back(deque1.front()->data->left);
-		}
-		if (deque1.front()->data->right)
-		{
-			deque1.push_back(deque1.front()->data->right);
-			deque2.push_back(deque1.front()->data->right);
-		}
-		deque1.pop_front();
-		deque2.pop_front();
-	}
-	return true;
-#endif // NDEBUG
-}
-
-bool operator!=(const binary_search_tree &tree1, const binary_search_tree &tree2)
-{
-	return !operator==(tree1, tree2);
-}
+: data{data}, left{left}, right{right} {}
 
 void binary_search_tree::insert(node *&current, const int &data)
 {
 	if (!current)
 	{
 		++size_;
-		current = new node{ data };
+		current = new node{data};
 	}
 	else if (current->data < data)
 	{
@@ -539,7 +272,7 @@ void binary_search_tree::remove(node *&current, const int &data)
 	{
 		current->data = find_minimum(current->right)->data;
 
-		remove(current->right, current->data);
+		remove(current->right,current->data);
 	}
 	else
 	{
@@ -590,26 +323,21 @@ bool binary_search_tree::contains(const int &data) const
 }
 
 binary_search_tree::binary_search_tree()
-	: iterator_type_{ iterator_type::in_order }, size_{}, root_{} {}
+: size_{}, root_{} {}
 
 binary_search_tree::~binary_search_tree()
 {
 	destroy_tree(root_);
 }
 
-void binary_search_tree::toggle_iterator_type()
+binary_search_tree::iterator binary_search_tree::create_dft_iterator() const
 {
-	iterator_type_ = iterator_type_ == iterator_type::in_order ? iterator_type::breadth_first : iterator_type::in_order;
+	return { this, iterator_type::in_order };
 }
 
-binary_search_tree::iterator binary_search_tree::begin() const
+binary_search_tree::iterator binary_search_tree::create_bft_iterator() const
 {
-	return { this, iterator_type_, position::begin };
-}
-
-binary_search_tree::iterator binary_search_tree::end() const
-{
-	return { this, iterator_type_, position::end };
+	return { this, iterator_type::breadth_first };
 }
 
 /*
