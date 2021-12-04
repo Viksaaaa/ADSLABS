@@ -227,40 +227,21 @@ int main()
 
 	std::cout << "In order:\n\n";
 
-	for (const auto &element : tree)
-	{
-		std::cout << element << '\n';
-	}
-	std::cout << "\nIn order (reverse):\n\n";
+    	auto dft{ tree.create_dft_iterator() };
 
-	for (auto it{ --tree.end() }; ; --it)
-	{
-		std::cout << *it << '\n';
+   	while ( dft.has_next() )
+   	{
+      		std::cout << dft.next() << '\n';
+   	}
+   	std::cout << "\nBreadth first:\n\n";
 
-		if (it == tree.begin())
-		{
-			break;
-		}
-	}
-	tree.toggle_iterator_type();
-
-	std::cout << "\nBreadth first:\n\n";
-
-	for (const auto &element : tree)
-	{
-		std::cout << element << '\n';
-	}
-	std::cout << "\nBreadth first (reverse):\n\n";
-
-	for (auto it{ --tree.end() }; ; --it)
-	{
-		std::cout << *it << '\n';
-
-		if (it == tree.begin())
-		{
-			break;
-		}
-	}
-	return 0;
+  	auto bft{ tree.create_bft_iterator() };
+	
+  	while ( bft.has_next() )
+    	{
+   	     std::cout << bft.next() << '\n';
+  	}
+		
+return 0;
 }
 */
