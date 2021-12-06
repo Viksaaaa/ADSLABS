@@ -8,7 +8,9 @@ TEST(insert, inserts_in_empty_tree)
 
 	tree.insert(element);
 
-	ASSERT_EQ(*tree.begin(), element);
+	const int result = tree.create_bft_iterator().next();
+
+	ASSERT_EQ(result, element);
 }
 
 TEST(insert, inserts_in_tree_with_elements)
@@ -18,65 +20,52 @@ TEST(insert, inserts_in_tree_with_elements)
 
 	tree.insert(element_1);
 
-	ASSERT_EQ(*tree.begin(), element_1);
+	ASSERT_EQ(tree.create_dft_iterator().next(), element_1);
 
 	constexpr int element_2 = 7;
 
 	tree.insert(element_2);
 
-	ASSERT_EQ(*tree.begin(), element_2);
+	ASSERT_EQ(tree.create_dft_iterator().next(), element_2);
 
 	constexpr int element_3 = 55;
 
 	tree.insert(element_3);
 
-	ASSERT_EQ(*(--tree.end()), element_3);
+	auto iterator{ tree.create_dft_iterator() };
 
+	for (int i = 0; i < 2; ++i)
+	{
+		iterator.next();
+	}
+
+	ASSERT_EQ(iterator.next(), element_3);
+	
+	
 	constexpr int element_4 = 24;
 
 	tree.insert(element_4);
 
-	ASSERT_EQ(*(tree.end() - 2), element_4);
-	ASSERT_EQ(*(tree.begin() + 2), element_4);
+	auto iterator2{ tree.create_dft_iterator() };
 
-	tree.insert(element_2);
-	tree.insert(element_3);
-
-	std::vector<int> vector_from_tree{};
-
-	for (const auto &element : tree)
+	for (int i = 0; i < 2; ++i)
 	{
-		vector_from_tree.push_back(element);
+		iterator2.next();
 	}
 
-	bool repeat{ false };
-
-	for (size_t i = 1; i < vector_from_tree.size(); ++i)
-	{
-		if (vector_from_tree.at(i) == vector_from_tree.at(i - 1))
-		{
-			repeat = true;
-			break;
-		}
-	}
-	ASSERT_FALSE(repeat);
-
+	ASSERT_EQ(iterator2.next(), element_4);
+	
 }
 
 TEST(remove, removes_element_in_tree)
 {
 	binary_search_tree tree{};
 	constexpr int element_1 = 21;
-
 	tree.insert(element_1);
-
-	ASSERT_EQ(*tree.begin(), element_1);
+	ASSERT_EQ(tree.create_bft_iterator().next(), element_1);
 
 	tree.remove(element_1);
-
-	ASSERT_EQ(tree.begin(), tree.end());
-
-	ASSERT_THROW(*tree.begin(), std::out_of_range);
+	ASSERT_THROW(tree.create_bft_iterator().next(), std::out_of_range);
 
 }
 
@@ -95,12 +84,13 @@ TEST(remove, removes_element_in_big_tree)
 	constexpr int element_4 = 24;
 	tree.insert(element_4);
 
-	ASSERT_EQ(*(tree.begin() + 1), element_1);
+	ASSERT_EQ(tree.create_dft_iterator().next(), element_2);
 
-	tree.remove(element_1);
+	tree.remove(element_2);
 
-	ASSERT_EQ(*(tree.end() - 2), element_4);
-	ASSERT_EQ(*(tree.begin() + 1), element_4);
+	ASSERT_FALSE(tree.contains(element_2));
+
+	ASSERT_EQ(tree.create_dft_iterator().next(), element_1);
 }
 
 TEST(contains, works)
@@ -128,7 +118,8 @@ TEST(contains, works)
 
 }
 
-TEST(iterator_in_order, works)
+
+TEST(create_dft_iterator, works)
 {
 	binary_search_tree tree{};
 	constexpr int element_1 = 21;
@@ -155,16 +146,21 @@ TEST(iterator_in_order, works)
 	constexpr int element_8 = 46;
 	tree.insert(element_8);
 
-	ASSERT_TRUE(*(tree.begin()), element_5);
-	ASSERT_THROW(*(tree.begin() - 3), std::out_of_range);
-	ASSERT_TRUE(*(tree.begin() + 6), element_8);
-	ASSERT_THROW(*(tree.begin() + 10), std::out_of_range);
+	auto iterator{ tree.create_dft_iterator() };
 
-	ASSERT_TRUE(*(tree.end() - 1), element_3);
-	ASSERT_THROW(*(tree.end()), std::out_of_range);
-	ASSERT_TRUE(*(tree.end() - 5), element_6);
-	ASSERT_THROW(*(tree.end() - 10), std::out_of_range);
+	for (int i = 0; i < 2; ++i)
+	{
+		iterator.next();
+	}
 
+	ASSERT_EQ(iterator.next(), element_2);
+
+	for (int i = 0; i < 2; ++i)
+	{
+		iterator.next();
+	}
+
+	ASSERT_EQ(iterator.next(), element_4);
 }
 
 TEST(iterator_breadth_first, works)
@@ -194,18 +190,21 @@ TEST(iterator_breadth_first, works)
 	constexpr int element_8 = 46;
 	tree.insert(element_8);
 
-	tree.toggle_iterator_type();
+	auto iterator{ tree.create_bft_iterator() };
 
-	ASSERT_TRUE(*(tree.begin()), element_1);
-	ASSERT_THROW(*(tree.begin() - 3), std::out_of_range);
-	ASSERT_TRUE(*(tree.begin() + 4), element_6);
-	ASSERT_THROW(*(tree.begin() + 10), std::out_of_range);
+	for (int i = 0; i < 2; ++i)
+	{
+		iterator.next();
+	}
 
-	ASSERT_TRUE(*(tree.end() - 1), element_8);
-	ASSERT_THROW(*(tree.end()), std::out_of_range);
-	ASSERT_TRUE(*(tree.end() - 7), element_2);
-	ASSERT_THROW(*(tree.end() - 10), std::out_of_range);
+	ASSERT_EQ(iterator.next(), element_3);
 
+	for (int i = 0; i < 3; ++i)
+	{
+		iterator.next();
+	}
+
+	ASSERT_EQ(iterator.next(), element_7);
 }
 
 /*

@@ -177,7 +177,7 @@ int binary_search_tree::iterator::next()
 {
 	if (index_ == tree_->size_)
 	{
-		throw std::logic_error( "asd" );
+		throw std::out_of_range("binary_search_tree iterator next: node doesn't exist");
 	}
 	const int element = main_->front()->data->data;
 
