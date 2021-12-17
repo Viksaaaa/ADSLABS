@@ -289,7 +289,7 @@ namespace
 					?
 					std::string{ "s:\t" }.append(main.substr(begin, size + 1))
 					.append("\nAt positions:\t\t[").append(std::to_string(begin + 1))
-					.append("...").append(std::to_string(size + 1)).append("]")
+					.append("...").append(std::to_string(begin + size + 1)).append("]")
 					:
 					std::string{":\t" }.append(main.substr(begin, 1))
 					.append("\nAt position:\t\t").append(std::to_string(begin + 1))
@@ -350,8 +350,8 @@ namespace
 		if
 			(
 				current + flag_2 + 1 != s.size() && s.at(current + flag_2 + 1) != ' '
-				&& s.at(current + flag_2 + 1) != '+' && s.at(current + flag_2 + 1) != '-' && s.at(current + flag_2 + 1) != '*'
-				&& s.at(current + flag_2 + 1) != '/' && s.at(current + flag_2 + 1) != '^' && s.at(current + flag_2 + 1) != ')'
+				&& s.at(current + flag_2 + 1) != '+'	&& s.at(current + flag_2 + 1) != '-' && s.at(current + flag_2 + 1) != '*'
+				&& s.at(current + flag_2 + 1) != '/'	&& s.at(current + flag_2 + 1) != '^' && s.at(current + flag_2 + 1) != ')'
 				)
 		{
 			alert(symbols, s, true, true, begin, current - begin + 1 + flag_2);
@@ -375,17 +375,17 @@ namespace
 					{
 						alert(number, s, flag_1 ? !flag_2 : flag_1, flag_2, begin, flag_1 ? flag_2 : current - begin);
 					}
-					else { break; }
+					break;
 				}
-				else if (current_operator->data != "(")
+				if (current_operator->data != "(")
 				{
 					if (current_operator->right)
 					{
 						alert(number, s, flag_1 ? !flag_2 : flag_1, flag_2, begin, flag_1 ? flag_2 : current - begin);
 					}
-					else { break; }
+					break;
 				}
-				else { ++amount_brackets; }
+				++amount_brackets;
 			}
 			if (operands.size() == 1 && amount_brackets == operators.size())
 			{
@@ -530,6 +530,15 @@ namespace
 				operators.push("(", i);
 				break;
 			case ')': // )
+				if
+					(
+						i + 1 != s.size() && s.at(i + 1) != ' '
+						&& s.at(i + 1) != '+' && s.at(i + 1) != '-' && s.at(i + 1) != '*'
+						&& s.at(i + 1) != '/' && s.at(i + 1) != '^' && s.at(i + 1) != ')'
+						)
+				{
+					alert(symbols, s, true, true, i, 1);
+				}
 				while (!operators.empty() && operators.top()->data != "(")	// + - * / ^
 				{
 					if (!operators.top()->right) { alert(operation, s, false, true, operators.top()->begin); }
@@ -616,8 +625,8 @@ namespace calculator
 			std::string input{};
 			std::getline(std::cin, input);
 			if (input == "q" || input == "quit") { break; }
-			try									 { std::cout << parse(input); }
-			catch (std::runtime_error &error)	 { std::cerr << error.what() << "\n\n" << std::flush; }
+			try { std::cout << parse(input); }
+			catch (std::runtime_error &error) { std::cerr << error.what() << "\n\n" << std::flush; }
 		}
 		std::cout << "\nGood bye!\n";
 		return 0;
