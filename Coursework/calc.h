@@ -1,7 +1,8 @@
 #ifndef CALC_H
 #define CALC_H
 
-#include <utility> // we use utility only for std::move in node constructor
+#include <string>
+#include <utility>						// We use utility only for std::move in node constructor
 
 namespace constants
 {
@@ -12,17 +13,17 @@ namespace constants
 namespace data_structures
 {
 	template < typename T >
-	class stack
+	class stack							// Trivial stack
 	{
-		struct node
+		struct node						// With nontrivial node
 		{
-			T data;
-			size_t begin;
-			size_t end;
+			T data;						// Along with data we add
+			size_t begin;				// Starting position (index in string) of our T (number/substring)
+			size_t end;					// Ending position (index in string) of our T (number/substring)
 			node *next;
-			void *left;
-			void *right;
-
+			void *left;					// Left operand for an operator, if it's not an operator then it's nullptr
+			void *right;				// Right operand for an operator, if it's not an operator
+										// or it's a single argument function then it's nullptr
 			node (T data, const size_t &begin, const size_t &end, node *next = nullptr, void *left = nullptr, void *right = nullptr) :
 				data{ std::move(data) }, begin{ begin }, end{ end }, next{ next }, left{ left }, right{ right } {}
 		};
@@ -59,8 +60,8 @@ namespace data_structures
 
 namespace calculator
 {
-	bool process_once();
-	int execute();
-}
+	std::string parse(const std::string &);	// If we wanna test something with predefined string via test environment
+	int execute();								// Our 'main' function with interface... and cookies!
+}												// Yay, cookies! Everyone likes 'em
 
 #endif // CALC_H

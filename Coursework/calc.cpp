@@ -1,6 +1,6 @@
 #include <iomanip>
 #include <iostream>
-#include <string>
+#include <sstream>
 #include "calc.h"
 
 namespace
@@ -27,7 +27,7 @@ namespace
 	*/
 	enum operation_code								// first % 32 * ( middle % 32 ) * ( last % 32 ) * size
 	{
-		// parenthesis_left_round	= 512,			// might need in the future, so why not
+		// parenthesis_left_round	= 512,			// Might need in the future, so why not
 		plus = 1331,
 		minus = 2197,
 		multiply = 1000,
@@ -43,7 +43,7 @@ namespace
 		arcsine = 1596,
 		arccosine = 342,
 		arctangent = 1680,
-		// arccotangent			= 360			// might need in the future, so why not
+		// arccotangent			= 360				// Might need in the future, so why not
 	};
 
 	enum error_type
@@ -52,7 +52,8 @@ namespace
 		symbols,
 		operation,
 		number,
-		bracket
+		bracket,
+		empty
 	};
 
 	int order(const std::string &operation)
@@ -84,52 +85,52 @@ namespace
 				* (operation.at(operation.size() - 1) % 32)
 				* static_cast<int>(operation.size())
 				)	// If we really need to do precise arithmetic - big_int/big_double - whatever fits us instead of double/long double
-		{
+		{	// We don't want to use any abs eps because then we'll lie to ourselves that we're precise
 		case plus:					return left + right;
 		case minus:					return left - right;
 		case multiply:				return left * right;
 		case divide:
 			if (right == 0.L) { throw	std::runtime_error("Divider should not be equal to 0"); }
 			return	left / right;
-		case power:					return	pow(left, right);
+		case power:					return	powl(left, right);
 		case root_square:
 			if (left < 0.L) { throw	std::runtime_error("Square root argument should be greater than or equal to 0"); }
-			return	sqrt(left);
+			return	sqrtl(left);
 		case logarithm_natural:
 			if (left <= 0.L) { throw	std::runtime_error("Logarithm argument should be greater than 0"); }
-			return	log(left);
+			return	logl(left);
 		case logarithm_decimal:
 			if (left <= 0.L)		throw	std::runtime_error("Logarithm argument should be greater than 0");
-			return	log10(left);
-		case sine:					return	sin(left);
-		case cosine:				return	cos(left);
+			return	log10l(left);
+		case sine:					return	sinl(left);
+		case cosine:				return	cosl(left);
 		case tangent:
-			if (cos(left) == 0.L)
+			if (cosl(left) == 0.L)											// It won't help but we've tried at least
 			{
 				throw	std::runtime_error("Tangent argument should not be divisible by pi / 2");
 			}
-			return	tan(left);
+			return	tanl(left);
 		case cotangent:
-			if (fmod(left, constants::pi) == 0.L || sin(left) == 0.L)
+			if (fmodl(left, constants::pi) == 0.L || sinl(left) == 0.L)	// It won't help but we've tried at least
 			{
 				throw	std::runtime_error("Cotangent argument should not be divisible by pi");
 			}
-			return	cos(left) / sin(left);
+			return	cosl(left) / sinl(left);
 		case arcsine:
 			if (left < -1.L || left > 1.L) // std::abs( left ) > 1
 			{
 				throw	std::runtime_error("Arcsin argument should be greater than -1 and smaller than 1");
 			}
-			return	asin(left);
+			return	asinl(left);
 		case arccosine:
-			if (left < -1.L || left > 1.L)
+			if (left < -1.L || left > 1.L) // std::abs( left ) > 1
 			{
 				throw	std::runtime_error("Arccos argument should be greater than -1 and smaller than 1");
 			}
-			return	acos(left);
-		case arctangent:			return	atan(left);
+			return	acosl(left);
+		case arctangent:			return	atanl(left);
 			// Actually arccotangent, other operators/functions won't reach this 'evaluate()' function
-		default:					return	constants::pi / 2.L - atan(left);
+		default:					return	constants::pi / 2.L - atanl(left);
 		}
 	}
 
@@ -151,14 +152,14 @@ namespace
 		if (operators.top() && operators.top()->data == "(")
 		{
 			for (auto *current_operator{ operators.top() }; current_operator; current_operator = current_operator->next)
-			{	// we're seeking for operators which right part/function which first argument is current number
+			{	// We're seeking for operators which right part/function which first argument is current number
 				if (current_operator->data.size() > 1 && !current_operator->left)
 				{
 					current_operator->left = operands.top();
 				}
 				else if (current_operator->data.size() == 1 && current_operator->data != "(" && !current_operator->right)
 				{
-					current_operator->right = operands.top();	// if it's an operator
+					current_operator->right = operands.top();	// If it's an operator (+ - * / ^)
 					break;										// we're done
 				}
 			}
@@ -174,18 +175,18 @@ namespace
 		{
 			switch (infix.at(i))
 			{
-			case ' ': break;	// skip spaces
-			// in case we REALLY need to implement parsing c++ stuff like
+			case ' ': break;	// Skip spaces
+			// In case we REALLY need to implement parsing c++ stuff like
 			// 4e2
 			// 123.123e-3
 			// .5E2f
 			// etc.
 			// then we will end up in a madhouse or in Microsoft office
-			// those two are distinct things, right? >:)
-			// we handle somewhat ^(0|([1-9][0-9]*))(\.[0-9]+)?$
-			// negative numbers are handled via unary '-' for simplicity
-			case '0': case '1': case '2': case '3': case '4':		// numbers
-			case '5': case '6': case '7': case '8': case '9':		// numbers
+			// Those two are distinct things, right? >:)
+			// We handle somewhat ^(0|([1-9][0-9]*))(\.[0-9]+)?$
+			// Negative numbers are handled via unary '-' for simplicity
+			case '0': case '1': case '2': case '3': case '4':		// Numbers
+			case '5': case '6': case '7': case '8': case '9':		// Numbers
 			{
 				size_t j{ i };
 				for (; j + 1 < infix.size() && isdigit(infix.at(j + 1)); ++j) {}
@@ -211,7 +212,17 @@ namespace
 					rpn.append(operators.top()->data).append(" ");
 					operators.pop();
 				}
-				if (infix.at(i) == '-' && (i == 0 || infix.at(i - 1) == '(')) { rpn.append("0 "); }	// unary -
+				if (infix.at(i) == '-') // Check if it's an unary minus 
+				{							// (all minus signs are treated as unary/binary operator '-')
+					bool unary = i == 0;
+					if (!unary)
+					{
+						size_t j{ i };
+						while (j-- != 0 && infix.at(j) == ' ') {}
+						unary = j < i && (infix.at(j) == ' ' || infix.at(j) == '(');
+					}
+					if (unary) { rpn.append("0 "); }
+				}
 				operators.push(std::string{ infix.at(i) });
 				break;
 			case 'a': case 'c': case 'l': case 's': case 't':	// arcsin arccos arctan arccot cos cot ln lg sin sqrt tan
@@ -247,26 +258,26 @@ namespace
 		return rpn;
 	}
 
-	void alert
-	(
-		const error_type &type,
-		const std::string &main,
-		const bool &flag_1 = true,
-		const bool &flag_2 = true,
-		const size_t &begin = 0,
-		const size_t &end = 0,
+	[[noreturn]] void alert									// We're not gonna use enum class instead of pure enum
+	(															// since no one will ever get our error_type enum
+		const error_type &type,									// and typing things like 
+		const std::string &main,								// error_type::function
+		const bool &flag_1 = true,					// error_type::bracket
+		const bool &flag_2 = true,					// etc
+		const size_t &begin = 0,					// will pollute our code with unnecessary error_type::
+		const size_t &size = 0,
 		const std::string &additional = ""
 	)
 	{
-		switch (type)
-		{
-		case function:
+		switch (type)	// We add 1 for positions indices everywhere for convenience
+		{				// No one counts from 0
+		case function:	// Only some strange guys who call themselves programmers (:
 			throw std::runtime_error
-			{	// flag_1 == true stands for no argument
-				std::string{ "Unresolved function:\t" }.append(main.substr(begin, end + 1))
-				.append("\nAt positions:\t\t[").append(std::to_string(begin))
-				.append("...").append(std::to_string(begin + end)).append("]\n")
-				.append(flag_1 ? "No argument present, try putting one" : additional)
+			{
+				std::string{ "Unresolved function:\t" }.append(main.substr(begin, size + 1))
+				.append("\nAt positions:\t\t[").append(std::to_string(begin + 1))
+				.append("...").append(std::to_string(begin + size + 1)).append("]\n")
+				.append(flag_1 ? "No argument present, try putting one" : flag_2 ? "No opening bracket" : additional)
 			};
 		case symbols:
 			throw std::runtime_error
@@ -276,50 +287,51 @@ namespace
 				(
 					flag_1	// True stands for Multiple symbols
 					?
-					std::string{ "s:\t" }.append(main.substr(begin, end + 1))
-					.append("\nAt positions:\t\t[").append(std::to_string(begin))
-					.append("...").append(std::to_string(end)).append("]")
+					std::string{ "s:\t" }.append(main.substr(begin, size + 1))
+					.append("\nAt positions:\t\t[").append(std::to_string(begin + 1))
+					.append("...").append(std::to_string(size + 1)).append("]")
 					:
 					std::string{":\t" }.append(main.substr(begin, 1))
-					.append("\nAt position:\t\t").append(std::to_string(begin))
+					.append("\nAt position:\t\t").append(std::to_string(begin + 1))
 				)
 			};
 		case operation:	// + - * / ^
 			throw std::runtime_error
 			{
 				std::string{ "Unresolved operator:\t" }.append(main.substr(begin, 1))
-				.append("\nAt position:\t\t").append(std::to_string(begin))
+				.append("\nAt position:\t\t").append(std::to_string(begin + 1))
 				.append
 				(
 					flag_1
 					? "\nNo left argument present, try putting one"
 					: flag_2
 					? "\nNo right argument present, try putting one"
-					: std::string{ '\n' }.append(additional)	// Something's wrong with an operator ( e.g. dividing by 0 )
+					: std::string{ '\n' }.append(additional)	// Something's wrong with an operator (i.e. dividing by 0)
 				)
 			};
 		case bracket:	// ( )
 			throw std::runtime_error
 			{
 				std::string{ "No pair for:\t\t" }.append(flag_1 ? ")" : "(")
-				.append(" bracket\nAt position:\t\t").append(std::to_string(begin))
+				.append(" bracket\nAt position:\t\t").append(std::to_string(begin + 1))
 			};
-		case number:
+		case number:	// e pi 
 			throw std::runtime_error
 			{
 				std::string{ "No operator present\nFor number:\t\t" }
-				.append(flag_1 ? "e" : flag_2 ? "pi" : main.substr(begin, end + 1))
+				.append(flag_1 ? "e" : flag_2 ? "pi" : main.substr(begin, size + 1))
 				.append("\nAt position")
 				.append
 				(
-					flag_1 // TODO make correct output for single digit
+					flag_1 || !size	// single digit number, so it's e or 0 1 2 3 4 5 6 7 8 9
 					?
-					std::string{ ":\t\t" }.append(std::to_string(begin))
+					std::string{ ":\t\t" }.append(std::to_string(begin + 1))
 					:
-					std::string{ "s:\t\t["}.append(std::to_string(begin))
-					.append("...").append(std::to_string(begin + end)).append("]")
+					std::string{ "s:\t\t["}.append(std::to_string(begin + 1))
+					.append("...").append(std::to_string(begin + size + 1)).append("]")
 				)
 			};
+		case empty:	throw std::runtime_error{ "Nothing to evaluate" }; // No numbers
 		}
 	}
 
@@ -354,6 +366,7 @@ namespace
 		}
 		if (operators.top())
 		{
+			size_t amount_brackets{};
 			for (auto *current_operator{ operators.top() }; current_operator; current_operator = current_operator->next)
 			{
 				if (current_operator->data.size() > 1)
@@ -372,6 +385,11 @@ namespace
 					}
 					else { break; }
 				}
+				else { ++amount_brackets; }
+			}
+			if (operands.size() == 1 && amount_brackets == operators.size())
+			{
+				alert(number, s, flag_1 ? !flag_2 : flag_1, flag_2, begin, flag_1 ? flag_2 : current - begin);
 			}
 		}
 	}
@@ -385,21 +403,21 @@ namespace
 		{
 			switch (s.at(i))
 			{
-			case ' ':  break;										// skip spaces
-			case '0': case '1': case '2': case '3': case '4':		// numbers
-			case '5': case '6': case '7': case '8': case '9':		// numbers
+			case ' ':  break;										// Skip spaces
+			case '0': case '1': case '2': case '3': case '4':		// Numbers
+			case '5': case '6': case '7': case '8': case '9':		// Numbers
 			{
 				size_t j{ i };
-				// search for other digits before . if the first digit of a number is not 0
+				// Search for other digits before . if the first digit of a number is not 0
 				if (s.at(j) != '0') { for (; j + 1 < s.size() && isdigit(s.at(j + 1)); ++j) {} }
-				if (j + 1 != s.size() && s.at(j + 1) == '.') // fractional part
+				if (j + 1 != s.size() && s.at(j + 1) == '.') // Fractional part
 				{
 					if (++j + 1 == s.size()) { alert(symbols, s, true, true, i, j - i); }
 					if (!isdigit(s.at(j + 1))) { alert(symbols, s, true, true, i, j - i + 1); }
 					for (; j + 1 < s.size() && isdigit(s.at(j + 1)); ++j) {}
 				}
 				check_operand(s, operators, operands, false, false, j, i);
-				operands.push(std::stold(s.substr(i, j - i + 1)));	// pushing number to operators stack finally!
+				operands.push(std::stold(s.substr(i, j - i + 1)));	// Pushing number to operators stack finally!
 				bind_operations(operators, operands);
 				i = j;
 				break;
@@ -409,18 +427,26 @@ namespace
 				const bool pi = s.at(i) == 'p';
 				if (pi && i + 1 == s.size()) { alert(symbols, s, false, true, i); }
 				check_operand(s, operators, operands, true, pi, i, i);
-				operands.push(pi ? constants::pi : constants::e);	// pushing e or pi constant to operators stack finally!
+				operands.push(pi ? constants::pi : constants::e);		// Pushing e or pi constant to operators stack finally!
 				bind_operations(operators, operands);
 				i += pi;
 				break;
 			}
 			case '+': case '-': case '*': case '/': case '^':	// + - * / ^
-				if (s.at(i) == '-' && (i == 0 || s.at(i - 1) == '('))	 // unary minus solution
+			{
+				bool potential_minus_unary = s.at(i) == '-' && i == 0;
+				if (!potential_minus_unary)
+				{
+					size_t j{ i };
+					while (j-- != 0 && infix.at(j) == ' ') {}
+					potential_minus_unary = j < i && (infix.at(j) == ' ' || infix.at(j) == '(');
+				}
+				if (potential_minus_unary)	// Unary minus solution
 				{
 					operands.push(0.L);
 					bind_operations(operators, operands);
 				}
-				else
+				else							// Binary + - * / ^
 				{
 					if (operands.empty() || !operators.empty() && operators.top()->left == operands.top())
 					{
@@ -432,53 +458,72 @@ namespace
 						{
 							alert(operation, s, false, true, operators.top()->begin);
 						}
-						try { evaluate_once(operators, operands); } // we evaluate
+						try { evaluate_once(operators, operands); }
 						catch (std::runtime_error &error)
 						{
 							alert(operation, s, false, false, operators.top()->begin, 0, error.what());
 						}
 					}
 				}
-				operators.push(std::string{ s.at(i) }, i, i, operands.top());	// push operator to operators stack
+				operators.push(std::string{ s.at(i) }, i, i, operands.top());	// Push operator to operators stack
 				break;
-			case 'a': case 'c': case 'l': case 's': case 't':	// arcsin/arccos/arctan/arccot or cos/cot or ln/lg or sin/sqrt or tan
+			}
+			case 'a': case 'c': case 'l': case 's': case 't':	// arcsin/arccos/arctan/arccot/cos/cot/ln/lg/sin/sqrt/tan
 			{
 				const size_t distance{ s.size() - i };
 				if (distance == 1) { alert(symbols, s, false, true, i); }
-				if
-					(
-						distance <= 2 || s.substr(i, 3) != "ln(" && s.substr(i, 3) != "lg("
-						&&
-						(
-							distance <= 3
-							|| s.substr(i, 4) != "sin(" && s.substr(i, 4) != "cos("
-							&& s.substr(i, 4) != "tan(" && s.substr(i, 4) != "cot("
-							)
-						&& (distance <= 4 || s.substr(i, 5) != "sqrt(")
-						&&
-						(
-							distance <= 6
-							|| s.substr(i, 7) != "arcsin(" && s.substr(i, 7) != "arccos("
-							&& s.substr(i, 7) != "arctan(" && s.substr(i, 7) != "arccot("
-							)
-						)
+				switch (s.at(i))
 				{
-					alert
-					(
-						symbols, s, true, true, i,
-						distance > 7 &&
+				case 'l':									// ln lg
+					if (distance == 2 && s.substr(i, 2) != "ln" && s.substr(i, 2) != "lg")
+					{
+						alert(symbols, s, true, true, i, 2);
+					}
+					break;
+				case 'c': case 's': case 't':				// cos cot sin sqrt tan
+					switch (s.at(i + 1))
+					{
+					case 'q':								// sqrt
+						if (distance < 4 || s.substr(i, 4) != "sqrt")
+						{
+							alert(symbols, s, true, true, i, 3ULL < distance - 1 ? 3ULL : distance - 1);
+						}
+						break;
+					default:								// cos cot sin tan
+						if
+							(
+								distance < 3
+								|| s.substr(i, 3) != "sin" && s.substr(i, 3) != "cos"
+								&& s.substr(i, 3) != "tan" && s.substr(i, 3) != "cot"
+								)
+						{
+							alert(symbols, s, true, true, i, 2ULL < distance - 1 ? 2ULL : distance - 1);
+						}
+					}
+					break;
+				default:									// arcsin arccos arctan arccot
+					if
 						(
-							s.substr(i, 6) == "arcsin" || s.substr(i, 6) == "arccos"
-							|| s.substr(i, 6) == "arctan" || s.substr(i, 6) == "arccot"
+							distance < 5
+							|| s.substr(i, 6) != "arcsin" && s.substr(i, 6) != "arccos"
+							&& s.substr(i, 6) != "arctan" && s.substr(i, 6) != "arccot"
 							)
-						? distance - 1 : 6
-					);
+					{
+						alert(symbols, s, true, true, i, 5ULL < distance - 1 ? 5ULL : distance - 1);
+					}
 				}
 				const size_t end{ s.at(i) == 'a' ? 6ULL : s.at(i + 1) == 'q' ? 4ULL : s.at(i) != 'l' ? 3 : 2 };
-				// pushing ln/lg/sqrt/sin/cos/cot/tan/arcsin/arccos/arctan/arccot to operators stack
+				// Pushing ln/lg/sqrt/sin/cos/cot/tan/arcsin/arccos/arctan/arccot to operators stack
 				operators.push(s.substr(i, end), i, i + end - 1);
-				i += end;
-				operators.push("(", i); // pushing '(' located after any function to operators stack
+				i += end - 1;
+				size_t j{ i };				// Checking for '(' located after every function
+				while (j++ + 1 != s.size() && s.at(j) == ' ') {}
+				if (j == s.size() || s.at(j) != '(')
+				{
+					alert(function, s, false, true, operators.top()->begin, operators.top()->end);
+				}
+				operators.push("(", i);	// Pushing '(' located after every function to operators stack
+				i = j;
 				break;
 			}
 			case '(': // (
@@ -488,15 +533,15 @@ namespace
 				while (!operators.empty() && operators.top()->data != "(")	// + - * / ^
 				{
 					if (!operators.top()->right) { alert(operation, s, false, true, operators.top()->begin); }
-					try { evaluate_once(operators, operands); } // we evaluate
+					try { evaluate_once(operators, operands); }			// We evaluate
 					catch (std::runtime_error &error)
 					{
 						alert(operation, s, false, false, operators.top()->begin, 0, error.what());
 					}
 				}
 				if (operators.empty()) { alert(bracket, s, true, true, i); }
-				operators.pop();											// we pop '('
-				if (operators.top() && operators.top()->data.size() > 1)	// we're trying to deal with a potential function
+				operators.pop();											// We pop '('
+				if (operators.top() && operators.top()->data.size() > 1)	// We're trying to deal with a potential function
 				{
 					if (!operators.top()->left)
 					{
@@ -510,10 +555,10 @@ namespace
 					operators.pop();
 				}
 				break;
-			default:									alert(symbols, s, false, true, i); // not a valid symbol at all
+			default:									alert(symbols, s, false, true, i); // Not a valid symbol at all
 			}
 		}
-		while (!operators.empty())	// clear the operators stack 'til it's empty
+		while (!operators.empty())	// Clear the operators stack 'til it's empty
 		{
 			if (operators.top()->data == "(") { alert(bracket, s, false, true, operators.top()->begin); }
 			if (operators.top()->data.size() == 1 && !operators.top()->right)
@@ -523,29 +568,26 @@ namespace
 			try { evaluate_once(operators, operands); }
 			catch (std::runtime_error &error) { alert(operation, s, false, false, operators.top()->begin, 0, error.what()); }
 		}
-		// no digits/operators
-		// just parentheses or spaces or spaces with parentheses in correct order
-		// so we check that
-		if (operands.empty()) { throw std::runtime_error{ "Nothing to evaluate" }; }
+		// No digits/operators
+		// Just parentheses or spaces or spaces with parentheses in correct order
+		// So we check that
+		if (operands.empty()) { alert(empty, s); }
 		return operands.top()->data;
 	}
 }
 
 namespace calculator
 {
-	bool process_once()
+	std::string parse(const std::string &input)
 	{
-		std::cout << "Input:\t\t\t";
-		std::string input{};
-		std::getline(std::cin, input);
-		if (input == "q" || input == "quit") { return false; }
 		try
 		{
+			std::ostringstream stream;
 			const long double result = validate_infix(input);
-			std::cout << std::setprecision(sizeof(long double) * 2 + 1)
+			stream << std::setprecision(sizeof(long double) * 2 + 1)
 				<< "Postfix expression:\t" << infix_to_rpn(input)
 				<< "\nResult:\t\t\t" << result << "\n\n";
-			return true;
+			return stream.str();
 		}
 		catch (...) { throw; }
 	}
@@ -560,21 +602,24 @@ namespace calculator
 			<< "Available functions are:\n\t"
 			<< "sqrt\n\t" << "ln\n\t" << "lg\n\t"
 			<< "sin\n\t" << "cos\n\t" << "tan\n\t" << "cot\n\t"
-			<< "arcsin\n\t" << "arccos\n\t" << "arctan\n\t" << "arccot\n\n"
+			<< "arcsin\n\t" << "arccos\n\t" << "arctan\n\t" << "arccot\n"
+			<< "Trigonometric functions work with radians\n\n"
 			<< "Available constants are:\n\t"
 			<< "e\n\t" << "pi\n\n"
 			<< "Output:\n\t"
 			<< "Correct input:   postfix version of the initial expression along with it's result;\n\t"
 			<< "Incorrect input: description of first error.\n\n"
 			<< "To quit type 'q' or 'quit' (without quotes) and hit Enter.\nEnjoy!\n\n";
-		for (bool stay{ true }; stay; )
+		while (true)
 		{
-			try { stay = process_once(); }
-			catch (std::runtime_error &error) { std::cout << error.what() << "\n\n" << std::flush; }
+			std::cout << "Input:\t\t\t";
+			std::string input{};
+			std::getline(std::cin, input);
+			if (input == "q" || input == "quit") { break; }
+			try									 { std::cout << parse(input); }
+			catch (std::runtime_error &error)	 { std::cerr << error.what() << "\n\n" << std::flush; }
 		}
 		std::cout << "\nGood bye!\n";
 		return 0;
 	}
 }
-
-// TODO unary minus
