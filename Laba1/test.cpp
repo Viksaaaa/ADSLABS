@@ -130,7 +130,7 @@ TEST(remove, works)
 {
 	map<std::string, int> order{};
 	std::vector<int> values{ 1, 4, 76, 23, 2 };
-	std::vector<std::string> keys{ "Potatoes", "Almond", "Bread", "Coconat", "Carrot" };
+	std::vector<std::string> keys{ "Potatoes", "Almond", "Bread", "Coconut", "Carrot" };
 
 	for (size_t i{}; i < keys.size(); ++i)
 	{
@@ -140,6 +140,38 @@ TEST(remove, works)
 	auto result{ order.remove(keys.at(keys.size() - 1)) };
 
 	ASSERT_TRUE(result);
+}
+
+TEST(clear, works)
+{
+	map<std::string, int> order{};
+	std::vector<int> values{ 1, 3, 5, 7, 9 };
+	std::vector<std::string> keys{ "Potatoes", "Almond", "Bread", "Coconut", "Carrot" };
+
+	for (size_t i{}; i < keys.size(); ++i)
+	{
+		order.insert(keys.at(i), values.at(i));
+	}
+
+	order.clear();
+	auto result{ order.print() };
+
+	ASSERT_TRUE(result == "");
+	//order.print();
+}
+
+TEST(print, works)
+{
+	map<std::string, int> order{};
+	std::vector<int> values{ 1, 3, 5, 7, 9 };
+	std::vector<std::string> keys{ "Potatoes", "Almond", "Bread", "Coconut", "Carrot" };
+
+	for (size_t i{}; i < keys.size(); ++i)
+	{
+		order.insert(keys.at(i), values.at(i));
+	}
+	
+	order.print();
 }
 //int main()
 //{
