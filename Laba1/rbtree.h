@@ -262,12 +262,16 @@ class map
 		return nullptr;
 	}
 
-	void print(node *const &initial) const
+	void print(node *const &initial, std::string &result) const
 	{
-		if (!initial)			{ return; }
-		print(initial->left);
-		std::cout << "Key:\t" << initial->key << "\nValue:\t" << initial->value << "\n\n";
-		print(initial->right);
+		if (!initial) { return; }
+		print(initial->left, result);
+		std::stringstream current{};
+		current << "Key:\t" << initial->key << "\nValue:\t" << initial->value << "\n\n";
+		const std::string string{ current.str() };
+		std::cout << string;
+		result.append(string);
+		print(initial->right, result);
 	}
 
 public:
@@ -283,5 +287,10 @@ public:
 	linked_list<V> get_values()													{ return get_values(root_); }
 
 	const node* find(const K &key)												{ return find(root_, key); }
-	void print() const															{ print(root_); }
+	std::string print() const
+	{
+		std::string result{};
+		print(root_, result);
+		return result;
+	}
 };
