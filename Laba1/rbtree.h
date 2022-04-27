@@ -30,15 +30,16 @@ class map
 
 	node *root_;
 
-	static void destroy_tree(node *current)
+	void destroy_tree(node *&current)
 	{
 		if (current)
 		{
 			destroy_tree(current->left);
 			destroy_tree(current->right);
 			delete current;
+			current = nullptr;
 		}
-		current = nullptr;
+		
 	}
 	
 	std::pair<bool, bool> insert(node *&initial, const K &key, const V &value, const replacement &flag)
@@ -281,7 +282,7 @@ public:
 	std::pair<bool, bool> insert(const K &key, const V &value,
 								 const replacement &flag=replacement::allowed)	{ return insert(root_, key, value, flag); }
 	bool remove(const K &key)													{ return remove(root_, key); }
-	void clear() const															{ destroy_tree(root_); }
+	void clear()															    { destroy_tree(root_); }
 
 	linked_list<K> get_keys()													{ return get_keys(root_); }
 	linked_list<V> get_values()													{ return get_values(root_); }
