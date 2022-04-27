@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sstream>
 #include "linked_list.h"
 
 enum class replacement { allowed, disallowed };
@@ -179,6 +180,7 @@ class map
 					sibling->right->color = node_color::black;
 					rotate(sibling, rotation::left);
 				}
+				sibling = result == parent->left ? parent->right : parent->left;
 				sibling->color = parent->color;
 				parent->color = node_color::black;
 				if (left_child)
