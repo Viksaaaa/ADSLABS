@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "rbtree.h"
-
+#include <iostream>
+#include <vector>
 /*
  *
  *Отчет по лабораторной работе должен содержать:
@@ -27,6 +28,7 @@
 +    7. print                    // вывод в консоль
  */
 
+
 TEST(insert, inserts)
 {
 	map<std::string, int> map{};
@@ -52,13 +54,23 @@ TEST(insert, inserts)
 
 	ASSERT_EQ(values.get_size(), 1);
 	ASSERT_EQ(values.at(0), value);
+	
+	map.clear();
 
 	const std::vector<std::string> new_keys{ "Potatoes", "Almond", "Bread", "Coconut", "Cheese", "Crisps", "" };
-	//std::vector<int> values{ 1, 4, 76, 23, 2, 5, 8};
+	std::vector<int> new_values{ 1, 4, 76, 23, 2, 5, 8};
 
 	for (size_t i{}; i < new_keys.size(); ++i)
 	{
+		map.insert(new_keys.at(i), new_values.at(i));
+	}
 
+	linked_list<std::string> new_result{ map.get_keys() };
+	std::vector<std::string> expected{ "", "Almond" , "Bread" , "Cheese", "Coconut", "Crisps",  "Potatoes" };
+
+	for (size_t i{}; i < expected.size(); ++i)
+	{
+		ASSERT_EQ(expected.at(i), new_result.at(i));
 	}
 }
 
@@ -103,12 +115,11 @@ TEST(get_keys, works)
 	}
 }
 
-
 TEST(get_values, works)
 {
 	map<std::string, int> order{};
 	std::vector<int> values{ 1, 4, 76, 23, 2 };
-	std::vector<std::string> keys{ "Potatoes", "Almond", "Bread", "Coconat", "Carrot" };
+	std::vector<std::string> keys{ "Potatoes", "Almond", "Bread", "Coconut", "Carrot" };
 
 	for (size_t i{}; i < values.size(); ++i)
 	{
@@ -157,7 +168,6 @@ TEST(clear, works)
 	auto result{ order.print() };
 
 	ASSERT_TRUE(result == "");
-	//order.print();
 }
 
 TEST(print, works)
@@ -173,10 +183,42 @@ TEST(print, works)
 	
 	order.print();
 }
-//int main()
-//{
-//    map<std::string, int> map{};
-//    map.insert("Milk", 2);
-//
-//    map.print();
-//}
+/*
+int main()
+{
+    map<std::string, int> map{};
+	std::vector<int> values{ 1, 3, 5, 7, 9 };
+	std::vector<std::string> keys{ "Potatoes", "Almond", "Bread", "Coconut", "Carrot" };
+
+	for (size_t i{}; i < keys.size(); ++i)
+	{
+		map.insert(keys.at(i), values.at(i));
+	}
+
+	auto result{ map.remove("Coconut") };
+
+	if (result)	{ std::cout << "Excellent!\n\n"; } 
+	else		{ std::cout << "You are very stupid!\n\n"; }
+
+	auto result_keys{ map.get_keys() };
+	
+	result_keys.print();
+	std::cout << '\n';
+
+	auto result_find{ map.find("Bread") };
+
+	if(result_find) { std::cout << "Bread value:\t" << result_find->value << "\n\n"; }
+	else			{ std::cout << "Not found!\n\n"; }
+
+	map.insert("Milk", 7);
+	map.print();
+
+	auto result_values{ map.get_values() };
+
+	result_values.print();
+	std::cout << '\n';
+
+	map.clear();
+	
+}
+*/
