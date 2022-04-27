@@ -53,7 +53,9 @@ TEST(insert, inserts)
 	ASSERT_EQ(values.get_size(), 1);
 	ASSERT_EQ(values.at(0), value);
 
-	const std::vector<std::string> new_keys{ "Potatoes", "Almond", "Bread", "Bread", "Bread", "", "" };
+	const std::vector<std::string> new_keys{ "Potatoes", "Almond", "Bread", "Coconut", "Cheese", "Crisps", "" };
+	//std::vector<int> values{ 1, 4, 76, 23, 2, 5, 8};
+
 	for (size_t i{}; i < new_keys.size(); ++i)
 	{
 
@@ -99,6 +101,45 @@ TEST(get_keys, works)
 	{
 		ASSERT_EQ(expected.at(i), result.at(i));
 	}
+}
+
+
+TEST(get_values, works)
+{
+	map<std::string, int> order{};
+	std::vector<int> values{ 1, 4, 76, 23, 2 };
+	std::vector<std::string> keys{ "Potatoes", "Almond", "Bread", "Coconat", "Carrot" };
+
+	for (size_t i{}; i < values.size(); ++i)
+	{
+		order.insert(keys.at(i), values.at(i));
+	}
+	linked_list<int> result{ order.get_values() };
+
+	ASSERT_TRUE(result.get_size() == 5);
+
+	std::vector<int> expected{ 4 , 76 , 2 , 23 , 1 };
+
+	for (size_t i{}; i < expected.size(); ++i)
+	{
+		ASSERT_EQ(expected.at(i), result.at(i));
+	}
+}
+
+TEST(remove, works)
+{
+	map<std::string, int> order{};
+	std::vector<int> values{ 1, 4, 76, 23, 2 };
+	std::vector<std::string> keys{ "Potatoes", "Almond", "Bread", "Coconat", "Carrot" };
+
+	for (size_t i{}; i < keys.size(); ++i)
+	{
+		order.insert(keys.at(i), values.at(i));
+	}
+
+	auto result{ order.remove(keys.at(keys.size() - 1)) };
+
+	ASSERT_TRUE(result);
 }
 //int main()
 //{
