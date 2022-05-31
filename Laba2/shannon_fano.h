@@ -1,14 +1,7 @@
 #pragma once
 
 /*
-Реализовать кодирование и декодирование по алгоритму Шеннона-Фано
-входной строки, вводимой через консоль
-2. Посчитать объем памяти, который занимает исходная и закодированная
-строки
-3. Выводить на экран таблицу частот и кодов, результат кодирования и
-декодирования, коэффициент сжатия
-4. Стандартные структуры данных C++ использовать нельзя. Необходимо
-использовать структуры данных из предыдущих лабораторных работ
+3. результат декодирования
 
 Наличие unit-тестов является обязательным требованием.
 
@@ -48,8 +41,7 @@ class shannon_fano
 		return
 			left.frequency < right.frequency ? 1 :
 			left.frequency > right.frequency ? -1 :
-			left.character < right.character ? 1 :
-			-1;
+			0;
 	}
 
 	void make_codes(const int &left, const int &right)
@@ -81,6 +73,22 @@ class shannon_fano
 		make_codes(pivot, right);
 	}
 
+	static std::string decode(const std::string &coded, map<std::string, char> &decodes)
+	{
+		std::string result{}, current{};
+		for (size_t i{}; i < coded.size(); ++i)
+		{
+			current += coded.at(i);
+			const auto search{ decodes.find(current) };
+			if (search)
+			{
+				result += search->value;
+				current = "";
+			}
+		}
+		return result;
+	}
+
 	static constexpr int ascii_size = 256;
 	int count_{};
 	size_t size_input_{};
@@ -90,6 +98,7 @@ class shannon_fano
 	std::string decoded_;
 	cell table_[ascii_size];
 	map<char, std::string> codes_{};
+	map<std::string, char> decodes_{};
 
 public:
 	shannon_fano() = default;
@@ -98,16 +107,16 @@ public:
 	void encode(const std::string &input)
 	{
 		size_input_ = input.size();
-		if (!size_input_) { std::cout << "Nothing to encode.\n"; return; }
 		for (int i{}; i < count_; ++i) { table_[i].frequency = 0; }
 		count_ = 0;
-		codes_.clear(); coded_.clear(); decoded_.clear();
+		codes_.clear(); decodes_.clear(); coded_.clear();
 		input_ = input;
+		if (!size_input_) { std::cout << "Nothing to encode.\n"; return; }
 		for (size_t i{}; i < size_input_; ++i)
 		{
 			const char character = input.at(i);
 			const auto index = static_cast<unsigned char>(character);
-			codes_.insert(character, "");
+			codes_.insert(character, "", replacement::disallowed);
 			if (!table_[index].frequency) { ++count_; }
 			++table_[index].frequency;
 			table_[index].character = character;
@@ -118,11 +127,14 @@ public:
 			table_[i].probability = static_cast<double>(table_[i].frequency) / static_cast<double>(size_input_);
 		}
 		make_codes(0, count_ - 1);
-		for (size_t i{}; i < size_input_; ++i)
+		for (int i = 0; i < count_; ++i)
 		{
-			coded_ += codes_.find(input.at(i))->value;
+			const auto result{ codes_.find(table_[i].character) };
+			decodes_.insert(result->value, result->key);
 		}
+		for (size_t i{}; i < size_input_; ++i) { coded_ += codes_.find(input.at(i))->value; }
 		size_output_ = coded_.size();
+		decoded_ = decode(coded_, decodes_);
 	}
 
 	void info()
@@ -136,7 +148,7 @@ public:
 			<< " bits.\nOutput is:\t\t" << size_output_
 			<< " bits.\nCompression factor:\t" << static_cast<double>(input_bits) / static_cast<double>(size_output_)
 			<< "\nCoded message:\t\t" << coded_
-			<< "\nDecoded message:\t\t" << decoded_
+			<< "\nDecoded message:\t" << decoded_
 			<< "\nTable of frequencies:\n";
 		for (int i{}; i < count_; ++i)
 		{
