@@ -16,14 +16,7 @@ void printShortestPath(const Graph &g, TKeyRef start, TKeyRef end)
 {
 	auto shortest_path = g.findShortestPath(start, end);
 	std::cout << "Shortest path from \"" << start << "\" to \"" << end << "\":\n";
-	// for(const auto &city : shortest_path.first)
-	// {
-	//     std::cout << city;
-	//     if(city != shortest_path.first.back())
-	//     {
-	//         std::cout << " -> ";
-	//     }
-	// }
+
 	if (shortest_path == INF)
 	{
 		std::cout << "Could not be found. Negative cycle.\n";
@@ -347,42 +340,4 @@ std::vector<int> Graph::_bellmanFordClassic(int start) const
 	// printRow(dist);
 
 	return dist;
-}
-
-void Graph::_bellmanFordFull(int start) const
-{
-	/// NOT WORKING...
-	int vertices = sizeVertices();
-	auto edges = getEdges();
-	MATRIX(int) A = makeMatrix<int>(vertices, vertices, INF);
-	MATRIX(int) P = makeMatrix<int>(vertices, vertices, 0);
-	for (auto &r : A) r[start] = 0;
-
-	for (int i = 1; i < vertices; i++)
-	{
-		for (auto &e : edges)
-		{
-			int src, dest, weight; std::tie(src, dest, weight) = e;
-			int nw = A[i - 1][src] + weight;
-			if (A[i - 1][dest] != INF && A[i - 1][dest] > nw)
-			{
-				A[i][dest] = nw;
-			}
-		}
-	}
-
-	int i = vertices - 1;
-	for (auto &e : edges)
-	{
-		int src, dest, weight; std::tie(src, dest, weight) = e;
-		int nw = A[src][i - 1] + weight;
-		if (A[dest][i] != INF && A[dest][i] > nw)
-		{
-			std::cout << "NEGATIVE CYCLE\n";
-		}
-	}
-
-	printMatrix<int>(A, "A");
-
-	//return MATRIX(int){};
 }
