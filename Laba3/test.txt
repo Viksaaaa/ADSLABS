@@ -1,0 +1,7 @@
+Saint-Petersburg;Anapa;30;20
+Anapa;Belgorod;50;N/A
+Saint-Petersburg;Belgorod;14;N/A
+Kazan;Saint-Petersburg;N/A;10
+Belgorod;Kazan;56;38
+Moscow;Kazan;21;N/A
+Anapa;Moscow;15;22
