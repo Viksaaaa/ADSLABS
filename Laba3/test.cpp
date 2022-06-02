@@ -8,7 +8,7 @@ int main() {
 
 	graph.printVertices(); std::cout << '\n';
 	graph.print(); std::cout << '\n';
-	printShortestPath(graph, "Saint-Petersburg", "Moscow"); std::cout << '\n';
+	printShortestPath(graph, "Kazan", "Moscow"); std::cout << '\n';
 
 	return 0;
 }
